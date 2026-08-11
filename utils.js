@@ -57,6 +57,16 @@ function addWheelIncrement(input, step=[1,1,1], actionCB) {
         else input.selectedIndex = Math.max(0, currentIndex-stepChosen)
         if (hasActionCB) actionCB(input.value)
     }
+    else if (nodeName === "INPUT" && (type === "color")) callback=e=>{
+        const color = new Color(input.value)
+        let stepChosen = normalStep
+        if (e.ctrlKey) stepChosen = ctrlStep
+        else if (e.shiftKey) stepChosen = shiftStep
+        color.hue += stepChosen
+        console.log(color.hue, Color.convertTo(color.rgba, Color.CONVERTABLE_FORMATS.HEX))
+        input.value = Color.convertTo(color.rgba, Color.CONVERTABLE_FORMATS.HEX)
+        if (hasActionCB) actionCB(input.value)
+    }
     else console.warn("addWheelIncrement: Input not supported", input, nodeName)
 
     input.addEventListener("wheel", callback)
@@ -84,4 +94,12 @@ function setRegularNumberInput(input, actionCB) {
         const v = +input.value
         input.value = v < min ? min : v > max ? max : v
     })
+}
+
+function getRegulator(callback, delay) {
+    let timeoutId
+    return params=>{
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(()=>callback(params), delay)
+    }
 }

@@ -199,12 +199,8 @@ input:not([type=range]) {
     cursor: pointer;
 }
 
-input:hover, button:hover, .checkboxParent:hover {
-    filter: brightness(1.325) hue-rotate(-15deg);
-}
-input:focus {
-    filter: brightness(1.425) hue-rotate(-20deg);
-}
+input:hover:not([type=color]), button:hover, .checkboxParent:hover {filter: brightness(1.325) hue-rotate(-15deg);}
+input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
 
 /* Fancy Checkbox */
 .checkboxParent {
