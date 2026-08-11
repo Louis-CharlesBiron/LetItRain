@@ -21,9 +21,20 @@
 
             <div class="right">
                 <div class="controlsParent">
+
                     <button id="startButton">Start</button>
-                    <button id="stopButton">Stop</button>
-                    <button id="openOverlayButton">Overlay</button>
+
+                    <span class="overlayCheckParent">
+                        <label class="checkboxParent"><input id="overlayCheckbox" type="checkbox">
+                            <span class="checkCore">
+                                <div>
+                                    <span>Overlay</span>
+                                    <span>Off</span>
+                                </div>
+                            </span>
+                        </label>
+                    </span>
+
                 </div>
             </div>
         </div>
@@ -34,15 +45,38 @@
                 <label>
                     <div><span>Rate</span>  <span>:</span></div>
                     <div>
-                        <input type="number" min="1" max="1000" step="10" id="rateInput" placeholder="1000">
-                        <input type="range" id="rateRange" min="1" max="1000" step="10">
+                        <input type="number" id="rateInput" min="1" max="10000" step="10" placeholder="1000">
+                        <input type="range"  id="rateRange" min="1" max="10000" step="10">
                     </div>
                     </label>
                 <label>
                     <div><span>Amount</span><span>:</span></div>
                     <div>
-                        <input type="number" min="1" max="50" step="1" id="amountInput" placeholder="5">
-                        <input type="range" id="amountRange" min="1" max="50" step="1">
+                        <input type="number" id="amountInput" min="1" max="50" step="1" placeholder="5">
+                        <input type="range"  id="amountRange" min="1" max="50" step="1">
+                    </div>
+                </label>
+                <label>
+                    <div><span>Width</span> <span>:</span></div>
+                    <div>
+                        <input type="number" id="widthInput" min="0.1" max="10" step="0.1" placeholder="0.75">
+                        <input type="range"  id="widthRange" min="0.1" max="10" step="0.1">
+                        <!-- todo make sliders fill up, with like animated water/waves -->
+                         <!-- todo make it rain in the extension popup -->
+                    </div>
+                </label>
+                <label>
+                    <div><span>Height</span><span>:</span></div>
+                    <div>
+                        <input type="number" id="heightInput" min="0.1" max="100" step="1" placeholder="10">
+                        <input type="range"  id="heightRange" min="0.1" max="100" step="1">
+                    </div>
+                </label>
+                <label>
+                    <div><span>Fall Time</span><span>:</span></div>
+                    <div>
+                        <input type="number" id="fallTimeInput" min="100" max="10000" step="100" placeholder="1200">
+                        <input type="range"  id="fallTimeRange" min="100" max="10000" step="100">
                     </div>
                 </label>
                 <label>
@@ -52,29 +86,6 @@
                         <input type="range" min="1" max="100" step="1" id="alphaRange">
                     </div>
                 </label>
-                <label>
-                    <div><span>Width</span> <span>:</span></div>
-                    <div>
-                        <input type="number" min="0.1" max="10" step="0.1" id="widthInput" placeholder="0.75">
-                        <input type="range" id="widthRange" min="0.1" max="10" step="0.1">
-                        <!-- todo make sliders fill up, with like animated water/waves -->
-                         <!-- todo make it rain in the extension popup -->
-                    </div>
-                </label>
-                <label>
-                    <div><span>Height</span><span>:</span></div>
-                    <div>
-                        <input type="number" min="1" max="100" step="1" id="heightInput" placeholder="10">
-                        <input type="range" id="heightRange" min="1" max="100" step="1">
-                    </div>
-                </label>
-                <label>
-                    <div><span>Fall Time</span><span>:</span></div>
-                    <div>
-                        <input type="number" min="100" max="10000" step="100" id="fallTimeInput" placeholder="1200">
-                        <input type="range" id="fallTimeRange" min="100" max="10000" step="100">
-                    </div>
-                </label>
             </div>
         </div>
 
@@ -82,6 +93,7 @@
         <!-- sync with weather? -->
     </div>
     
+    <script src="utils.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>
