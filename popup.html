@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon">
+    <title>Rain config</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <div class="left">
+                <div class="title">
+                    <span>Let</span>
+                    <span style="margin-left: 1px;">It</span>
+                    <span>Rain</span>
+                </div>
+                <span id="version">v1.0</span>
+            </div>
+
+            <div class="right">
+                <div class="controlsParent">
+                    <button id="startButton">Start</button>
+                    <button id="stopButton">Stop</button>
+                    <button id="openOverlayButton">Overlay</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+    
+            <div class="inputsParent">
+                <label>
+                    <div><span>Rate</span>  <span>:</span></div>
+                    <div>
+                        <input type="number" min="1" max="1000" step="10" id="rateInput" placeholder="1000">
+                        <input type="range" id="rateRange" min="1" max="1000" step="10">
+                    </div>
+                    </label>
+                <label>
+                    <div><span>Amount</span><span>:</span></div>
+                    <div>
+                        <input type="number" min="1" max="50" step="1" id="amountInput" placeholder="5">
+                        <input type="range" id="amountRange" min="1" max="50" step="1">
+                    </div>
+                </label>
+                <label>
+                    <div><span>Color</span> <span>:</span></div>
+                    <div>
+                        <input type="color" id="colorInput">
+                        <input type="range" min="1" max="100" step="1" id="alphaRange">
+                    </div>
+                </label>
+                <label>
+                    <div><span>Width</span> <span>:</span></div>
+                    <div>
+                        <input type="number" min="0.1" max="10" step="0.1" id="widthInput" placeholder="0.75">
+                        <input type="range" id="widthRange" min="0.1" max="10" step="0.1">
+                        <!-- todo make sliders fill up, with like animated water/waves -->
+                         <!-- todo make it rain in the extension popup -->
+                    </div>
+                </label>
+                <label>
+                    <div><span>Height</span><span>:</span></div>
+                    <div>
+                        <input type="number" min="1" max="100" step="1" id="heightInput" placeholder="10">
+                        <input type="range" id="heightRange" min="1" max="100" step="1">
+                    </div>
+                </label>
+                <label>
+                    <div><span>Fall Time</span><span>:</span></div>
+                    <div>
+                        <input type="number" min="100" max="10000" step="100" id="fallTimeInput" placeholder="1200">
+                        <input type="range" id="fallTimeRange" min="100" max="10000" step="100">
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- presets -->
+        <!-- sync with weather? -->
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

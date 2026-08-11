@@ -1,0 +1,30 @@
+{
+  "name": "Let It Rain",
+  "description": "todo",
+  "version": "1",
+  "version_name": "1.0.0",
+  "manifest_version": 3,
+  "icons": {
+      "128": "./assets/img/logo.png"
+  },
+  "commands": {
+    "_execute_action": { 
+      "suggested_key": {
+        "default": "Alt+Shift+W",
+        "linux": "Alt+Shift+W",
+        "windows": "Alt+Shift+W",
+        "mac": "Alt+Shift+W"
+      }
+    }
+  },
+  "action": {
+    "default_title": "Rain configuration",
+      "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": ["<all_urls>"]
+}
