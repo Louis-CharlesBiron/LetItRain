@@ -1,27 +1,15 @@
-const STORAGE = chrome.storage.sync,
-    DEFAULT_STORAGE = {
-        rate: 45,
-        amount: 4,
-        color: [174, 194, 204, .35],
-        easing: "easeInCubic",
-        fallTime: 1000,
-        width: .75,
-        height: 10,
-        radius: 2,
-
-        overlayActive: false,
-        rainActive: false,
-    },
+const RUNTIME = chrome.runtime,
+    TABS = chrome.tabs,
+    STORAGE = chrome.storage.sync,
     ACTIVE_STORAGE = {...DEFAULT_STORAGE},
-    EDITOR_SCRIPTS = [
-        "overlay/canvasDotEffect.js",
-        "overlay/overlay.js",
-        "overlay/rain.js",
-    ],
-    STORAGE_REGULATOR = getRegulator(params=>{console.log(params);STORAGE.set(params)}, 500)
-
+    STORAGE_REGULATOR = getRegulator(params=>STORAGE.set(params), 500)
 
 chrome.management.getSelf(e=>version.textContent="V"+e.version)
+RUNTIME.sendMessage({type:MSG_TYPES.RUNTIME.INIT, value:MSG_TYPES.RUNTIME})
+
+chrome.runtime.onMessage.addListener(({type, value})=>{
+    if (type === MSG_TYPES.RUNTIME.OVERLAY_DIED) ACTIVE_STORAGE.overlayTabs = ACTIVE_STORAGE.overlayTabs.filter(x=>x !== value)
+})
 
 function updateRate(value, preventStorage) {
     ACTIVE_STORAGE.rate = rateInput.value = rateRange.value = value
@@ -66,26 +54,24 @@ function updateColor(colorValue, alpha, preventStorage) {
 }
 
 function _resetStorage() {
-    STORAGE.set({
-        rate: DEFAULT_STORAGE.rate,
-        amount: DEFAULT_STORAGE.amount,
-        width: DEFAULT_STORAGE.width,
-        height: DEFAULT_STORAGE.height,
-        fallTime: DEFAULT_STORAGE.fallTime,
-        color: DEFAULT_STORAGE.color,
-    })
+    STORAGE.clear()
+    STORAGE.set(DEFAULT_STORAGE)
 }
 
 // Get storage
 STORAGE.get(res=>{
     if (!Object.keys(res).length) _resetStorage()
     else {
-        updateRate(res.rate, true)
-        updateAmount(res.amount, true)
-        updateWidth(res.width, true)
-        updateHeight(res.height, true)
-        updateFallTime(res.fallTime, true)
-        updateColor(res.color.slice(0,3), res.color[3], true)
+        const {rate, amount, width, height, fallTime, color, overlayActive, rainActive, overlayTabs} = res
+        ACTIVE_STORAGE.overlayTabs = overlayTabs
+        ACTIVE_STORAGE.overlayActive = overlayActive
+        ACTIVE_STORAGE.rainActive = rainActive
+        updateRate(rate, true)
+        updateAmount(amount, true)
+        updateWidth(width, true)
+        updateHeight(height, true)
+        updateFallTime(fallTime, true)
+        updateColor(color.slice(0,3), color[3], true)
     }
 })
 
@@ -117,26 +103,40 @@ fallTimeRange.oninput=e=>updateFallTime(+e.target.value)
 
 colorInput.onauxclick=e=>e.target.value = Color.random(Color.FORMATS.HEX)
 colorInput.oninput=e=>updateColor(e.target.value)
-addWheelIncrement(colorInput, [1, 10, 50], value=>updateColor(value))
+addWheelIncrement(colorInput, [3, 10, 25], value=>updateColor(value))
 addWheelIncrement(alphaRange, [1, 5, 10], value=>(null, value/100))
 alphaRange.oninput=e=>updateColor(null, +e.target.value/100)
 
-keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, checked=>{
+keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, (checked, res)=>{
+    const overlayTabs = res ? res.overlayTabs : ACTIVE_STORAGE.overlayTabs
+    ACTIVE_STORAGE.overlayActive = checked
+    
     overlayStatusText.textContent = checked ? "on" : "off"
-    if (checked) {
-        
+
+    if (checked && !overlayTabs.length) {
+        TABS.query({active:true, currentWindow:true}, ([tab])=>{
+            const tabId = tab?.id
+            if (tabId && !overlayTabs.includes(tabId)) chrome.scripting.executeScript({target:{tabId}, files:OVERLAY_SCRIPTS}).then(()=>{
+                ACTIVE_STORAGE.overlayTabs.push(tabId)
+                STORAGE.set(ACTIVE_STORAGE)
+                RUNTIME.sendMessage({type:MSG_TYPES.RUNTIME.OVERLAY_ACTIVE_WATCH, value:tabId})
+                TABS.sendMessage(tabId, {type:MSG_TYPES.OVERLAY.CREATE})
+            })
+        })
+    } else if (!res && checked && overlayTabs.length) {
+        TABS.query({active:true, currentWindow:true}, ([tab])=>{
+            const tabId = tab?.id
+            if (tabId) TABS.sendMessage(tabId, {type:MSG_TYPES.OVERLAY.CREATE})
+        })
+    } else if (!res && overlayTabs.length) {
+        TABS.query({active:true, currentWindow:true}, ([tab])=>{
+            const tabId = tab?.id
+            if (tabId && overlayTabs.includes(tabId)) {
+                TABS.sendMessage(tab.id, {type:MSG_TYPES.OVERLAY.DELETE})
+            }
+        })
     }
 })
-
-
-
-//openOverlayButton.onclick=()=>
-//    chrome.tabs.query({active:true, currentWindow:true}, ([tab])=>{
-//        if (tab) chrome.scripting.executeScript({target:{tabId: tab.id}, files:EDITOR_SCRIPTS}).then(()=>
-//            chrome.tabs.sendMessage(tab.id, {value:"test"})
-//        )
-//})
-
 
 
 

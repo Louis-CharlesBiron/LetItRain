@@ -21,6 +21,9 @@
     "default_title": "Rain configuration",
       "default_popup": "popup.html"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
     "storage",
     "scripting",

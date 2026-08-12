@@ -10,11 +10,11 @@ function keepCheckbox(element, storageType, storageName, initChecked, actionCB) 
     const hasActionCB = typeof actionCB === "function", storage = chrome.storage[storageType||"sync"], key = typeof storageName === "function" ? storageName(element, storageType) : storageName
     storage.get(res=>{
         const isChecked = element.checked = res[key]??initChecked
-        if (hasActionCB) actionCB(isChecked, true, key)
+        if (hasActionCB) actionCB(isChecked, res, key)
     })
     return element.addEventListener("click", ()=>{
         const isChecked = element.checked
-        if (hasActionCB) actionCB(isChecked, false, key)
+        if (hasActionCB) actionCB(isChecked, null, key)
         storage.set({[key]:isChecked})
     })
 }
@@ -58,12 +58,13 @@ function addWheelIncrement(input, step=[1,1,1], actionCB) {
         if (hasActionCB) actionCB(input.value)
     }
     else if (nodeName === "INPUT" && (type === "color")) callback=e=>{
-        const color = new Color(input.value)
+        const color = new Color(input.value), isFowardStep = e.deltaY>0
         let stepChosen = normalStep
         if (e.ctrlKey) stepChosen = ctrlStep
         else if (e.shiftKey) stepChosen = shiftStep
-        color.hue += stepChosen
-        console.log(color.hue, Color.convertTo(color.rgba, Color.CONVERTABLE_FORMATS.HEX))
+        if (stepChosen < 3) stepChosen = 3
+        const newHue = color.hue+(isFowardStep ? stepChosen : -stepChosen)
+        color.hue = newHue <= 0 ? 359 : newHue
         input.value = Color.convertTo(color.rgba, Color.CONVERTABLE_FORMATS.HEX)
         if (hasActionCB) actionCB(input.value)
     }
