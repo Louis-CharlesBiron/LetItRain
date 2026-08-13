@@ -21,9 +21,7 @@
 
             <div class="right">
                 <div class="controlsParent">
-
-                    <button id="startButton">Start</button>
-
+                    <span>Rain: </span>
                     <span class="overlayCheckParent">
                         <label class="checkboxParent"><input id="overlayCheckbox" type="checkbox">
                             <span class="checkCore">
@@ -34,7 +32,6 @@
                             </span>
                         </label>
                     </span>
-
                 </div>
             </div>
         </div>
@@ -45,8 +42,8 @@
                 <label>
                     <div><span>Rate</span>  <span>:</span></div>
                     <div>
-                        <input type="number" id="rateInput" min="10" max="10000" step="10" placeholder="1000">
-                        <input type="range"  id="rateRange" min="10" max="10000" step="10">
+                        <input type="number" id="rateInput" min="10" max="600" step="5" placeholder="45">
+                        <input type="range"  id="rateRange" min="10" max="600" step="5">
                     </div>
                     </label>
                 <label>
@@ -61,8 +58,6 @@
                     <div>
                         <input type="number" id="widthInput" min="0.1" max="10" step="0.1" placeholder="0.75">
                         <input type="range"  id="widthRange" min="0.1" max="10" step="0.1">
-                        <!-- todo make sliders fill up, with like animated water/waves -->
-                        <!-- todo make it rain in the extension popup -->
                     </div>
                 </label>
                 <label>
@@ -83,14 +78,11 @@
                     <div><span>Color</span> <span>:</span></div>
                     <div>
                         <input type="color" id="colorInput">
-                        <input type="range" min="1" max="100" step="1" id="alphaRange">
+                        <input type="range" min="5" max="100" step="1" id="alphaRange">
                     </div>
                 </label>
             </div>
         </div>
-
-        <!-- presets -->
-        <!-- sync with weather? -->
     </div>
     
     <script src="overlay/canvasDotEffect.js"></script>

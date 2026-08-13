@@ -1,5 +1,5 @@
 let _mt_i = 0
-const DEFAULT_STORAGE = {
+const DEFAULT_SETTINGS = {
     rate: 45,
     amount: 4,
     color: [174, 194, 204, .35],
@@ -8,10 +8,11 @@ const DEFAULT_STORAGE = {
     width: .75,
     height: 10,
     radius: 2,
-
+},
+DEFAULT_STORAGE = {
+    ...DEFAULT_SETTINGS,
     overlayActive: false,
     overlayTabs: [],
-    rainActive: false,
 },
 OVERLAY_SCRIPTS = [
     "overlay/canvasDotEffect.js",
@@ -19,13 +20,11 @@ OVERLAY_SCRIPTS = [
     "overlay/RainManager.js",
     "overlay/overlay.js",
 ],
-OVERLAY_STYLES = [
-    "src/editor/editor.css"
-],
 MSG_TYPES = {
     OVERLAY: {
-        CREATE: _mt_i++,
-        DELETE: _mt_i++,
+        ON: _mt_i++,
+        OFF: _mt_i++,
+        UPDATE_SETTINGS: _mt_i++,
     },
     RUNTIME: {
         INIT: null,

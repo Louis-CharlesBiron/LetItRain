@@ -5,27 +5,54 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: auto;
+}
+canvas[_cvsde=true] {
+    z-index: 99999999999999999999999999999 !important
 }`
     static #INJECTED_CSS_ID = "lir_styles"
+    static #SETTINGS = {
+        ...DEFAULT_SETTINGS,
+        fallTimeRange: [-115, 115],
+        widthRange: [-.1, .1],
+        heightRange: [-1, .85],
+        radiusRange: [-.25, 1.5],
+        heightPadding: 15,
+    }
 
     constructor() {
         if (RainManager.INSTANCE) return RainManager.INSTANCE
         else {
             this._CVS = null
-            RainManager.INSTANCE = this
+            this._rainObj = this.#createRainContainer()
+            this._rainInterval = null
+            
+            return RainManager.INSTANCE = this
         }
     }
 
     create() {
-        console.log("Canvas overlay created")
-        this.#injectCSS()
-        this._CVS = Canvas.create()
+        if (!this.hasCanvas) {
+            console.log("Canvas overlay created")
+            this.#injectCSS()
+            const fpsCounter = new FPSCounter(), fpsDisplay = document.querySelector("title"), initDisplayText = fpsDisplay.textContent
+            const CVS = this._CVS = Canvas.create(null, ()=>fpsDisplay.textContent = fpsCounter.getFps()+" / "+this._rainObj.dots.length+" | "+initDisplayText)
+            CVS.setMouseMove()
+            CVS.setMouseLeave()
+            CVS.setMouseDown()
+            CVS.setMouseUp()
+    
+            this.start()// TODO
+        }
     }
 
     delete() {
-        console.log("Canvas overlay removed")
-        this.#deleteCSS()
-        this._CVS.cvs.remove()
+        if (this.hasCanvas) {
+            console.log("Canvas overlay removed")
+            this.stop()
+            this.#deleteCSS()
+            this._CVS.cvs.remove()
+            this._CVS = null
+        }
     }
 
     #injectCSS() {
@@ -40,48 +67,77 @@ html, body {
         if (styleElement) styleElement.remove()
     }
 
+    #createRainContainer() {
+        const mod = CDEUtils.mod, color = RainManager.#SETTINGS.color
+        return new Shape(null, null, null, null, 350, (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
+            if (isActive) dot.a = mod(dot.initColor[3], ratio, -(dot.initColor[3]))
+        })
+    }
 
+    #rainLoop() {
+        const rainObj = this._rainObj, amount = RainManager.#SETTINGS.amount
+        for (let i=0;i<amount;i++) rainObj.add(this.#createRainDrop())
+    }
+
+    start() {
+        if (this.hasCanvas) {
+            if (!this._rainObj.parent?.id !== this._CVS.id) {
+                this._rainObj._parent = null
+                this._CVS.add(this._rainObj)
+            }
+            this.#rainLoop()
+            clearInterval(this._rainInterval)
+            this._rainInterval = setInterval(this.#rainLoop.bind(this), RainManager.#SETTINGS.rate)
+            this._CVS.start()
+        }
+    }
+
+    stop() {
+        clearInterval(this._rainInterval)
+        this._rainInterval = null
+        this._rainObj.clear()
+    }
+
+    #createRainDrop() {
+        const random = CDEUtils.random, {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS
+
+        const [cvsWidth, cvsHeight] = this._CVS.size,
+            radius = baseRadius+random(...radiusRange, 2),
+            scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
+            fallHeight = heightPadding+baseRadius*scaling[1]
+
+        return new Dot(
+            [random(0, cvsWidth), -fallHeight],
+            radius,
+            color,
+            dot=>{
+                dot.scale = scaling
+                dot.playAnim(new Anim(
+                    prog=>dot.y = -fallHeight+(cvsHeight+fallHeight*2)*prog, fallTime+random(fallTimeRange[0], fallTimeRange[1]),
+                    typeof easing==="string" ? Anim[easing] : easing,
+                    ()=>dot.remove()// object pooling todo?
+                ))
+            },
+            null, true
+        )
+    }
+
+    updateSettings(newSettings) {
+        const requireRestart = RainManager.#SETTINGS.rate !== newSettings.rate
+        console.log(
+            "rate: " + newSettings.rate + "\n" +
+            "amount: " + newSettings.amount + "\n" +
+            "color: " + JSON.stringify(newSettings.color) + "\n" +
+            "easing: " + newSettings.easing + "\n" +
+            "fallTime: " + newSettings.fallTime + "\n" +
+            "width: " + newSettings.width + "\n" +
+            "height: " + newSettings.height + "\n" +
+            "radius: " + newSettings.radius
+        );
+        RainManager.#SETTINGS = {...RainManager.#SETTINGS, ...newSettings}
+        if (requireRestart && this.isRaining) this.start()
+    }
+
+    get hasCanvas() {return Boolean(this._CVS)}
+    get isRaining() {return Boolean(this._rainInterval)}
 }
-
-/*const _ = null, fpsCounter = new FPSCounter(), CVS = new Canvas(htmlCanvas, ()=>fpsDisplay.textContent = fpsCounter.getFps()+"FPS")
-
-CVS.setMouseMove(mouse=>mouseDisplay.textContent = mouse.pos)
-CVS.setMouseLeave()
-CVS.setMouseDown()
-CVS.setMouseUp()
-CVS.setKeyDown(_, true)
-CVS.setKeyUp()
-CVS.start()
-
-const RATE = 45,
-    AMOUNT = 4,
-    EASING = Anim.easeInCubic,//Anim.easeInQuart
-    COLOR = [174, 194, 204, .35],
-    BASE_FALL_TIME = 1000,
-    FALL_TIME_RANGE = [-115, 115],
-    BASE_SIZE = [.75, 10],
-    WIDTH_RANGE = [-.1, .1],
-    HEIGHT_RANGE = [-1, .85],
-    HEIGHT_PADDING = 15,
-    BASE_RADIUS = 2,
-    RADIUS_RANGE = [-.25, 1.5]
-
-console.log(`
-Rate: ${RATE}
-Amout: ${AMOUNT}
-Easing: ${EASING.name}
-Color: rgba(${COLOR.map(x=>" "+x).toString().trim()})
-Base fall time: ${BASE_FALL_TIME}ms
-Fall time range: [${FALL_TIME_RANGE.map(x=>" "+x).toString().trim()}]
-Base size: [${BASE_SIZE.map(x=>" "+x).toString().trim()}]
-Width range: [${WIDTH_RANGE.map(x=>" "+x).toString().trim()}]
-Height range: [${HEIGHT_RANGE.map(x=>" "+x).toString().trim()}]
-Height padding: ${HEIGHT_PADDING}
-Base radius: ${BASE_RADIUS}
-Radius range: [${RADIUS_RANGE.map(x=>" "+x).toString().trim()}]
-`.trim())
-
-
-
-CVS.add(rain)*/
-

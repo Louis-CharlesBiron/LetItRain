@@ -104,3 +104,29 @@ function getRegulator(callback, delay) {
         timeoutId = setTimeout(()=>callback(params), delay)
     }
 }
+
+function sendMessage(obj, contentTabId) {
+    if (contentTabId) {
+        if (contentTabId===0) chrome.tabs.query({currentWindow:true, active:true}, ([tab])=>chrome.tabs.sendMessage(tab.id, obj))
+        else if (typeof contentTabId==="number") chrome.tabs.get(contentTabId, tab=>chrome.tabs.sendMessage(tab.id, obj))
+        else chrome.tabs.query({}, tabs=>{
+            const t_ll = tabs.length
+            for (let i=0;i<t_ll;i++) chrome.tabs.sendMessage(tabs[i].id, obj)
+        })
+    }
+    else chrome.runtime.sendMessage(obj)
+}
+
+function parseSettings(activeStorage) {
+    return {
+        rate: activeStorage.rate,
+        amount: activeStorage.amount,
+        color: activeStorage.color,
+        fallTime: activeStorage.fallTime,
+        width: activeStorage.width,
+        height: activeStorage.height,
+
+        easing: activeStorage.easing,
+        radius: activeStorage.radius,
+    }
+}
