@@ -32,7 +32,6 @@ canvas[_cvsde=true] {
 
     create() {
         if (!this.hasCanvas) {
-            console.log("Canvas overlay created")
             this.#injectCSS()
             const fpsCounter = new FPSCounter(), fpsDisplay = document.querySelector("title"), initDisplayText = fpsDisplay.textContent
             const CVS = this._CVS = Canvas.create(null, ()=>fpsDisplay.textContent = fpsCounter.getFps()+" / "+this._rainObj.dots.length+" | "+initDisplayText)
@@ -40,14 +39,12 @@ canvas[_cvsde=true] {
             CVS.setMouseLeave()
             CVS.setMouseDown()
             CVS.setMouseUp()
-    
-            this.start()// TODO
+            this.start()
         }
     }
 
     delete() {
         if (this.hasCanvas) {
-            console.log("Canvas overlay removed")
             this.stop()
             this.#deleteCSS()
             this._CVS.cvs.remove()
@@ -68,9 +65,9 @@ canvas[_cvsde=true] {
     }
 
     #createRainContainer() {
-        const mod = CDEUtils.mod, color = RainManager.#SETTINGS.color
+        const mod = CDEUtils.mod, clamp = CDEUtils.clamp
         return new Shape(null, null, null, null, 350, (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
-            if (isActive) dot.a = mod(dot.initColor[3], ratio, -(dot.initColor[3]))
+            if (isActive) dot.a = mod(dot.initColor[3], clamp(ratio-.15, 0, 1), -(dot.initColor[3]))
         })
     }
 
@@ -124,16 +121,6 @@ canvas[_cvsde=true] {
 
     updateSettings(newSettings) {
         const requireRestart = RainManager.#SETTINGS.rate !== newSettings.rate
-        console.log(
-            "rate: " + newSettings.rate + "\n" +
-            "amount: " + newSettings.amount + "\n" +
-            "color: " + JSON.stringify(newSettings.color) + "\n" +
-            "easing: " + newSettings.easing + "\n" +
-            "fallTime: " + newSettings.fallTime + "\n" +
-            "width: " + newSettings.width + "\n" +
-            "height: " + newSettings.height + "\n" +
-            "radius: " + newSettings.radius
-        );
         RainManager.#SETTINGS = {...RainManager.#SETTINGS, ...newSettings}
         if (requireRestart && this.isRaining) this.start()
     }

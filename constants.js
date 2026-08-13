@@ -21,14 +21,7 @@ OVERLAY_SCRIPTS = [
     "overlay/overlay.js",
 ],
 MSG_TYPES = {
-    OVERLAY: {
-        ON: _mt_i++,
-        OFF: _mt_i++,
-        UPDATE_SETTINGS: _mt_i++,
-    },
-    RUNTIME: {
-        INIT: null,
-        OVERLAY_ACTIVE_WATCH: _mt_i++,
-        OVERLAY_DIED: _mt_i++,
-    }
+    OVERLAY_ON: _mt_i++,
+    OVERLAY_OFF: _mt_i++,
+    OVERLAY_UPDATE_SETTINGS: _mt_i++,
 }

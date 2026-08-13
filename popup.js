@@ -1,18 +1,10 @@
-const RUNTIME = chrome.runtime,
-    TABS = chrome.tabs,
-    STORAGE = chrome.storage.sync,
+const STORAGE = chrome.storage.sync,
     ACTIVE_STORAGE = {...DEFAULT_STORAGE},
     STORAGE_REGULATOR = getRegulator(params=>STORAGE.set(params), 500),
-    SETTINGS_UPDATE_REGULATOR = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY.UPDATE_SETTINGS, value:params}, true), 18)
+    SETTINGS_UPDATE_REGULATOR = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), 18)
 
 // SETUP
 chrome.management.getSelf(e=>version.textContent="V"+e.version)
-//RUNTIME.sendMessage({type:MSG_TYPES.RUNTIME.INIT, value:MSG_TYPES.RUNTIME})
-//TABS.query({active:true, currentWindow:true}, ([tab])=>console.log("Active Tab: ", tab.id, tab.title))
-
-//chrome.runtime.onMessage.addListener(({type, value})=>{
-//    if (type === MSG_TYPES.RUNTIME.OVERLAY_DIED) ACTIVE_STORAGE.overlayTabs = ACTIVE_STORAGE.overlayTabs.filter(x=>x !== value)
-//})
 
 function updateRate(value, preventStorage) {
     ACTIVE_STORAGE.rate = rateInput.value = rateRange.value = value
@@ -118,8 +110,5 @@ alphaRange.oninput=e=>updateColor(null, +e.target.value/100)
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, (checked, res)=>{
     ACTIVE_STORAGE.overlayActive = checked
     overlayStatusText.textContent = checked ? "on" : "off"
-    sendMessage({type: checked ? MSG_TYPES.OVERLAY.ON : MSG_TYPES.OVERLAY.OFF}, true)
+    sendMessage({type: checked ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
 })
-
-
-

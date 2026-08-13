@@ -117,16 +117,16 @@ function sendMessage(obj, contentTabId) {
     else chrome.runtime.sendMessage(obj)
 }
 
-function parseSettings(activeStorage) {
+function parseSettings(storage) {
     return {
-        rate: activeStorage.rate,
-        amount: activeStorage.amount,
-        color: activeStorage.color,
-        fallTime: activeStorage.fallTime,
-        width: activeStorage.width,
-        height: activeStorage.height,
+        rate: storage.rate,
+        amount: storage.amount,
+        color: storage.color,
+        fallTime: storage.fallTime,
+        width: storage.width,
+        height: storage.height,
 
-        easing: activeStorage.easing,
-        radius: activeStorage.radius,
+        easing: storage.easing,
+        radius: storage.radius,
     }
 }
