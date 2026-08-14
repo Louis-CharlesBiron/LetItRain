@@ -95,7 +95,7 @@ canvas[_cvsde=true] {
         this._rainObj.clear()
     }
 
-    #createRainDrop() {
+    #createRainDrop() {// TODO OPTIMIZE
         const random = CDEUtils.random, {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS
 
         const [cvsWidth, cvsHeight] = this._CVS.size,
@@ -115,7 +115,7 @@ canvas[_cvsde=true] {
                     ()=>dot.remove()// object pooling todo?
                 ))
             },
-            null, true
+            null, true, 
         )
     }
 

@@ -10,6 +10,30 @@
 <body>
     <div class="main">
         <div class="header">
+            <div class="settingsParent">
+                <div class="settingsContent">
+                    <div class="settingsList">
+                        <label>Toggle Rain Shortcut: <input type="text" readonly id="rainShortcutInput" title="Open shortcut page..."></label>
+                        <label>Rain In Extension: checkboxtodo</label>
+                        <label>Rainbow rain: checkboxtodo</label>
+                        <div class="settingsSection">
+                            <span>Presets</span>
+                            <div>
+                                <div>
+                                    <button id="presetLight">Light Rain</button>
+                                    <button id="presetHeavy">Heavy Rain</button>
+                                </div>
+                                <div>
+                                    <button id="presetMild">Mild Rain</button>
+                                    <button id="presetRandom">Random</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="settingsButton">Settings</button>
+            </div>
+
             <div class="left">
                 <div class="title">
                     <span>Let</span>
@@ -22,16 +46,7 @@
             <div class="right">
                 <div class="controlsParent">
                     <span>Rain: </span>
-                    <span class="overlayCheckParent">
-                        <label class="checkboxParent"><input id="overlayCheckbox" type="checkbox">
-                            <span class="checkCore">
-                                <div>
-                                    <span>Overlay</span>
-                                    <span id="overlayStatusText">Off</span>
-                                </div>
-                            </span>
-                        </label>
-                    </span>
+                    <span class="overlayCheckParent"><label class="checkboxParent"><input id="overlayCheckbox" type="checkbox"><span class="checkCore"><div><span>Overlay</span><span id="overlayStatusText">Off</span></div></span></label></span>
                 </div>
             </div>
         </div>
@@ -74,7 +89,7 @@
                         <input type="range"  id="fallTimeRange" min="100" max="10000" step="100">
                     </div>
                 </label>
-                <label>
+                <label for="alphaRange">
                     <div><span>Color</span> <span>:</span></div>
                     <div>
                         <input type="color" id="colorInput">
@@ -88,6 +103,7 @@
     <script src="overlay/canvasDotEffect.js"></script>
     <script src="constants.js"></script>
     <script src="utils.js"></script>
+    <script src="StorageManager.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

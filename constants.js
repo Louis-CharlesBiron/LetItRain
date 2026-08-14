@@ -12,7 +12,6 @@ const DEFAULT_SETTINGS = {
 DEFAULT_STORAGE = {
     ...DEFAULT_SETTINGS,
     overlayActive: false,
-    overlayTabs: [],
 },
 OVERLAY_SCRIPTS = [
     "overlay/canvasDotEffect.js",
@@ -24,4 +23,5 @@ MSG_TYPES = {
     OVERLAY_ON: _mt_i++,
     OVERLAY_OFF: _mt_i++,
     OVERLAY_UPDATE_SETTINGS: _mt_i++,
+    OVERLAY_TOGGLE: _mt_i++
 }
