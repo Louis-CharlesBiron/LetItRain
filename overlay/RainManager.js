@@ -101,7 +101,8 @@ canvas[_cvsde=true] {
         const [cvsWidth, cvsHeight] = this._CVS.size,
             radius = baseRadius+random(...radiusRange, 2),
             scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
-            fallHeight = heightPadding+baseRadius*scaling[1]
+            fallHeight = heightPadding+baseRadius*scaling[1],
+            totalFall = -fallHeight+(cvsHeight+fallHeight*2)
 
         return new Dot(
             [random(0, cvsWidth), -fallHeight],
@@ -110,7 +111,8 @@ canvas[_cvsde=true] {
             dot=>{
                 dot.scale = scaling
                 dot.playAnim(new Anim(
-                    prog=>dot.y = -fallHeight+(cvsHeight+fallHeight*2)*prog, fallTime+random(fallTimeRange[0], fallTimeRange[1]),
+                    prog=>dot.y = totalFall*prog,
+                    fallTime+random(fallTimeRange[0], fallTimeRange[1]),
                     typeof easing==="string" ? Anim[easing] : easing,
                     ()=>dot.remove()// object pooling todo?
                 ))
