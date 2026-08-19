@@ -13,10 +13,11 @@ class StorageManager {
                 else {
                     const {
                         rate, amount, width, height, fallTime, color, easing, 
-                        overlayActive, fpsSafeLimit, statusText
+                        overlayActive, fpsSafeLimit, statusText, rainbowActive,
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
+                    this._rainbowInterval = null
 
                     this.#updateOverlayActive(overlayActive, true)
                     this.#updateFpsSafeLimit(fpsSafeLimit)
@@ -109,6 +110,19 @@ class StorageManager {
         statusDisplay.textContent = statusText||""
     }
 
+    #updateRainbowActive(value) {
+        rainbowCheckbox.checked = this._activeStorage.rainbowActive = value
+        if (value) this._rainbowInterval = rainbow(RAINBOW_DELAY)
+        else {
+            console.log(value, this._rainbowInterval)
+            clearInterval(this._rainbowInterval)
+            this._rainbowInterval = null
+            document.documentElement.style.filter = ""
+        }
+        console.log(value, this._rainbowInterval)
+        sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
+    }
+
     #updateSettings(rate, amount, width, height, fallTime, color) {
         if (rate) this.#updateRate(rate)
         if (amount) this.#updateAmount(amount)
@@ -144,6 +158,7 @@ class StorageManager {
     get updateOverlayActive() {return this.#updateOverlayActive.bind(this)}
     get updateSettings() {return this.#updateSettings.bind(this)}
     get updateFpsSafeLimit() {return this.#updateFpsSafeLimit.bind(this)}
+    get updateRainbowActive() {return this.#updateRainbowActive.bind(this)}
     get updateStatus() {return this.#updateStatus.bind(this)}
     get updateEasing() {return this.#updateEasing.bind(this)}
 }

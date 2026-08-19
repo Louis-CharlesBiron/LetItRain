@@ -1,5 +1,6 @@
 class RainManager {
     static INSTANCE = null
+    static #RAINBOW_ACTIVE = false
     static #FPS_SAFE_LIMIT = 22
     static SAFE_BUFFER_TIME = 1500
     static TURNING_OFF = -1
@@ -30,6 +31,7 @@ canvas[_cvsde=true] {
             this._startTime = null
             this._rainObj = this.#createRainContainer()
             this._rainInterval = null
+            this._rainbowColorCache = null
             return RainManager.INSTANCE = this
         }
     }
@@ -44,6 +46,13 @@ canvas[_cvsde=true] {
         else if (fps < RainManager.#FPS_SAFE_LIMIT && (this._CVS.timeStamp-startTime) > RainManager.SAFE_BUFFER_TIME) this.#toggleOff()
         
         fpsDisplay.textContent = fps+" / "+this._rainObj.dots.length
+
+        if (RainManager.#RAINBOW_ACTIVE) {
+            const SETTINGS = RainManager.#SETTINGS, a = SETTINGS.color[3]
+            this._rainbowColorCache.hue += 1.75
+            SETTINGS.color = this._rainbowColorCache.rgba
+            SETTINGS.color[3] = a
+        }
     }
 
     #toggleOff() {
@@ -154,11 +163,17 @@ canvas[_cvsde=true] {
     updateSettings(newSettings) {
         const requireRestart = RainManager.#SETTINGS.rate !== newSettings.rate
         RainManager.#SETTINGS = {...RainManager.#SETTINGS, ...newSettings}
+        if (RainManager.#RAINBOW_ACTIVE) this._rainbowColorCache = new Color(RainManager.#SETTINGS.color)
         if (requireRestart && this.isRaining) this.start()
     }
 
     updateFpsSafeLimit(fpsSafeLimit) {
         RainManager.#FPS_SAFE_LIMIT = fpsSafeLimit
+    }
+
+    updateRainbowActive(rainbowActive) {
+        RainManager.#RAINBOW_ACTIVE = rainbowActive
+        this._rainbowColorCache = rainbowActive ? new Color(RainManager.#SETTINGS.color) : null
     }
 
     get hasCanvas() {return Boolean(this._CVS)}

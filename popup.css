@@ -191,12 +191,14 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
 
 /* Fancy Checkbox */
 .checkboxParent {
+    transition: 0.4s all;
     width: var(--controlsWidth);
     height: 37px;
     position: relative;
     display: inline-block;
 }
 .checkCore {
+    transition: 0.4s all;
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -204,7 +206,6 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
     right: 0;
     bottom: 0;
     background-color: #1f2e3d;
-    transition: 0.4s;
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -233,7 +234,6 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
     width: 21.5px;
     left: 4.5px;
     background-color: rgb(var(--textColor));
-    transition: 0.4s;
     border-radius: 5px;
     box-shadow: 0px 0px 15px rgba(var(--textColor), 0.4);
     transform: scale(0.75);
@@ -243,6 +243,47 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
 .checkboxParent > input:checked + .checkCore {background-color: #335062;}
 .checkboxParent > input:checked + .checkCore > div {margin-left: 4.5px;}
 .checkboxParent > input:checked + .checkCore:before {transform: translateX(41px) rotate(90deg);}
+
+/* Fancy Checkbox Small */
+.checkboxParentSmall {
+    transition: 0.4s all;
+    width: 40px;
+    height: 19px;
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+}
+.checkCoreSmall {
+    transition: 0.4s all;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #1f2e3d;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    border-radius: 6px;
+    border: 2px solid rgba(var(--accentColor) / 0.25);
+    border-bottom: 2px solid rgba(var(--accentColor) / 0.75);
+}
+.checkCoreSmall:before {
+    position: absolute;
+    content: "";
+    height: 9px;
+    width: 9px;
+    left: 5px;
+    background-color: rgb(var(--textColor));
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px rgba(var(--textColor), 1);
+    transition: 0.4s all;
+}
+.checkboxParentSmall > input {display: none;}
+.checkboxParentSmall > input + .checkCoreSmall:before {background-color: #a9e0f2;}
+.checkboxParentSmall > input:checked + .checkCoreSmall {background-color: #335062;}
+.checkboxParentSmall > input:checked + .checkCoreSmall:before {transform: translateX(16.5px);}
 
 .overlayCheckParent {
     display: flex;
@@ -274,6 +315,10 @@ button {
     border-bottom: 1.5px solid rgba(var(--accentColor) / 1);
     cursor: pointer;
     padding: 1px 4px;
+}
+
+select {
+    cursor: pointer;
 }
 
 .settingsContent {

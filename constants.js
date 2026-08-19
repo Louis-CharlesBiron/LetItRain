@@ -14,6 +14,7 @@ DEFAULT_STORAGE = {
     overlayActive: false,
     fpsSafeLimit: 22,
     statusText: null,
+    rainbowActive: false,
 },
 OVERLAY_SCRIPTS = [
     "overlay/canvasDotEffect.js",
@@ -28,6 +29,7 @@ MSG_TYPES = {
     OVERLAY_TOGGLE: _mt_i++,
     OVERLAY_UPDATE_FPS_SAFE_LIMIT: _mt_i++,
     STATUS: _mt_i++,
+    RAINBOW_TOGGLE: _mt_i++,
 },
 STORAGE = chrome.storage.sync,
 SAFE_LIMIT_STATUS_TEXT = "Rain turned off due to fps being below limit",
@@ -67,4 +69,5 @@ EASINGS = [
     Anim.easeOutElastic.name,
     // OTHER
     "*"+Anim.linear.name
-]
+],
+RAINBOW_DELAY = 18

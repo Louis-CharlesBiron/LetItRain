@@ -145,3 +145,9 @@ function fillSelectOptions(input, optionNames) {
         input.appendChild(option)
     })
 }
+
+function rainbow(speed=10, el=document.documentElement) {
+    const style = el.style
+    let deg = 0
+    return setInterval(()=>style.filter = "hue-rotate("+(++deg)+"deg)", speed)
+}

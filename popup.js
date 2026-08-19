@@ -53,6 +53,8 @@ alphaRange.oninput=e=>storageManager.updateColor(null, +e.target.value/100)
 
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, checked=>storageManager.updateOverlayActive(checked))
 
+keepCheckbox(rainbowCheckbox, null, "rainbowActive", DEFAULT_STORAGE.rainbowActive, checked=>storageManager.updateRainbowActive(checked))
+
 setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
 addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
 
@@ -60,11 +62,19 @@ fillSelectOptions(easingSelect, EASINGS)
 addWheelIncrement(easingSelect, null, storageManager.updateEasing)
 easingSelect.oninput=e=>storageManager.updateEasing(e.target.value)
 
-
 // Presets
-presetLight.onclick=()=>storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
-presetMild.onclick=()=>storageManager.updateSettings(45, 6, .75, 10, 850, [174, 194, 204, .4])
-presetHeavy.onclick=()=>storageManager.updateSettings(15, 7, 1, 20, 500, [174, 194, 204, .35],)
+presetLight.onclick=()=>{
+    storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
+    storageManager.updateEasing(DEFAULT_STORAGE.easing)
+}
+presetMild.onclick=()=>{
+    storageManager.updateSettings(45, 6, .75, 10, 850, [174, 194, 204, .4])
+    storageManager.updateEasing(DEFAULT_STORAGE.easing)
+}
+presetHeavy.onclick=()=>{
+    storageManager.updateSettings(15, 7, 1, 20, 500, [174, 194, 204, .35])
+    storageManager.updateEasing(DEFAULT_STORAGE.easing)
+}
 
 presetRandom.onclick=()=>{
     const random = CDEUtils.random
@@ -76,4 +86,5 @@ presetRandom.onclick=()=>{
         random(+fallTimeInput.min, +fallTimeInput.max),
         Color.random(Color.FORMATS.RGBA, true)
     )
+    storageManager.updateEasing(EASINGS[random(0, EASINGS.length)].replaceAll("*",""))
 }

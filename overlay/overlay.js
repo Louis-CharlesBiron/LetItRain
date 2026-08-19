@@ -2,6 +2,8 @@ let rainManager = new RainManager()
 console.log("INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-") // TODO
 
 chrome.storage.sync.get(res=>{
+    rainManager.updateRainbowActive(res.rainbowActive)
+
     if (res.overlayActive) {
         rainManager.updateSettings(parseSettings(res))
         rainManager.create()
@@ -14,6 +16,7 @@ chrome.runtime.onMessage.addListener(({type, value})=>{
     else if (type === MSG_TYPES.OVERLAY_OFF) rainManager.delete()
     else if (type === MSG_TYPES.OVERLAY_UPDATE_SETTINGS) rainManager.updateSettings(value)
     else if (type === MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT) rainManager.updateFpsSafeLimit(value)
+    else if (type === MSG_TYPES.RAINBOW_TOGGLE) rainManager.updateRainbowActive(value)
 })
 
 function parseSettings(storage) {
