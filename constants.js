@@ -12,6 +12,8 @@ const DEFAULT_SETTINGS = {
 DEFAULT_STORAGE = {
     ...DEFAULT_SETTINGS,
     overlayActive: false,
+    fpsSafeLimit: 22,
+    statusText: null,
 },
 OVERLAY_SCRIPTS = [
     "overlay/canvasDotEffect.js",
@@ -23,5 +25,9 @@ MSG_TYPES = {
     OVERLAY_ON: _mt_i++,
     OVERLAY_OFF: _mt_i++,
     OVERLAY_UPDATE_SETTINGS: _mt_i++,
-    OVERLAY_TOGGLE: _mt_i++
-}
+    OVERLAY_TOGGLE: _mt_i++,
+    OVERLAY_UPDATE_FPS_SAFE_LIMIT: _mt_i++,
+    STATUS: _mt_i++,
+},
+STORAGE = chrome.storage.sync,
+SAFE_LIMIT_STATUS_TEXT = "Rain turned off due to fps being below limit"

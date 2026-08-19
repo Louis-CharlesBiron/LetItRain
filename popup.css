@@ -174,7 +174,7 @@ input[type=color] {
     cursor: pointer;
 }
 
-input:not([type=range]) {
+input:not([type=range]), select {
     padding: 3px 3px !important;
     text-align: center;
     background-color: rgb(7, 11, 15);
@@ -362,4 +362,20 @@ button {
     border-bottom: 2px solid rgba(var(--accentColor) / 0.75);
     border-radius: 2px;
     outline: none;
+}
+
+#statusDisplay {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 25.5%;
+    left: 0;
+    font-size: 0.74em;
+    font-style: italic;
+    opacity: 0.7;
+    filter: hue-rotate(270deg);
+}
+
+#statusDisplay:hover {
+    opacity: 1;
 }

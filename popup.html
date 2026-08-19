@@ -14,9 +14,11 @@
                 <div class="settingsContent">
                     <div class="settingsList">
                         <label>Toggle Rain Shortcut: <input type="text" readonly id="rainShortcutInput" title="Open shortcut page..."></label>
-                        <label>Rain In Extension: checkbox todo</label>
                         <label>Rainbow rain: checkbox todo</label>
-                        <label>Rain Easing: select todo</label>
+                        <label>Rain Easing: <select id="easingInput">
+                            <option value="a">EaseIn</option>
+                        </select></label>
+                        <label>Stop if FPS below: <input type="number" min="0" max="60" step="1" id="fpsSafeLimitInput" placeholder="20"></label>
                         <div class="settingsSection">
                             <span>Presets</span>
                             <div>
@@ -47,9 +49,11 @@
             <div class="right">
                 <div class="controlsParent">
                     <span>Rain: </span>
-                    <span class="overlayCheckParent"><label class="checkboxParent"><input id="overlayCheckbox" type="checkbox"><span class="checkCore"><div><span>Overlay</span><span id="overlayStatusText">Off</span></div></span></label></span>
+                    <span class="overlayCheckParent"><label class="checkboxParent"><input id="overlayCheckbox" type="checkbox"><span class="checkCore"><div><span>Rain</span><span id="overlayStatusText">Off</span></div></span></label></span>
                 </div>
             </div>
+
+            <span id="statusDisplay"></span>
         </div>
 
         <div class="content">
@@ -105,6 +109,6 @@
     <script src="constants.js"></script>
     <script src="utils.js"></script>
     <script src="StorageManager.js"></script>
-    <script src="popup.js"></script>
+    <script async src="popup.js"></script>
 </body>
 </html>

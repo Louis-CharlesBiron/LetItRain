@@ -1,5 +1,8 @@
 class RainManager {
     static INSTANCE = null
+    static #FPS_SAFE_LIMIT = 22
+    static SAFE_BUFFER_TIME = 1500
+    static TURNING_OFF = -1
     static #INJECTED_CSS = `
 html, body {
     width: 100%;
@@ -22,19 +25,41 @@ canvas[_cvsde=true] {
     constructor() {
         if (RainManager.INSTANCE) return RainManager.INSTANCE
         else {
+            this._FPSCounter = null
             this._CVS = null
+            this._startTime = null
             this._rainObj = this.#createRainContainer()
             this._rainInterval = null
-            
             return RainManager.INSTANCE = this
         }
+    }
+
+    #loop() {
+        const fps = this._FPSCounter.getFps(), startTime = this._startTime
+
+        const fpsDisplay = document.querySelector("title")
+
+        if (startTime === RainManager.TURNING_OFF) return;
+        else if (!startTime) this._startTime = this._CVS.timeStamp
+        else if (fps < RainManager.#FPS_SAFE_LIMIT && (this._CVS.timeStamp-startTime) > RainManager.SAFE_BUFFER_TIME) this.#toggleOff()
+        
+        fpsDisplay.textContent = fps+" / "+this._rainObj.dots.length
+    }
+
+    #toggleOff() {
+        this._startTime = RainManager.TURNING_OFF
+        this.delete()
+        chrome.runtime.sendMessage({type:MSG_TYPES.OVERLAY_TOGGLE, value:false})
+        chrome.runtime.sendMessage({type:MSG_TYPES.STATUS, value:SAFE_LIMIT_STATUS_TEXT})
+        STORAGE.set({overlayActive:false, statusText:SAFE_LIMIT_STATUS_TEXT})
     }
 
     create() {
         if (!this.hasCanvas) {
             this.#injectCSS()
-            const fpsCounter = new FPSCounter(), fpsDisplay = document.querySelector("title"), initDisplayText = fpsDisplay.textContent
-            const CVS = this._CVS = Canvas.create(null, ()=>fpsDisplay.textContent = fpsCounter.getFps()+" / "+this._rainObj.dots.length+" | "+initDisplayText)
+            this._FPSCounter = new FPSCounter()
+            const CVS = this._CVS = Canvas.create(null, this.#loop.bind(this))
+
             CVS.setMouseMove()
             CVS.setMouseLeave()
             CVS.setMouseDown()
@@ -43,12 +68,14 @@ canvas[_cvsde=true] {
         }
     }
 
+
     delete() {
         if (this.hasCanvas) {
             this.stop()
             this.#deleteCSS()
             this._CVS.cvs.remove()
             this._CVS = null
+            this._FPSCounter = null
         }
     }
 
@@ -78,18 +105,21 @@ canvas[_cvsde=true] {
 
     start() {
         if (this.hasCanvas) {
-            if (!this._rainObj.parent?.id !== this._CVS.id) {
+            const CVS = this._CVS
+            if (!this._rainObj.parent?.id !== CVS.id) {
                 this._rainObj._parent = null
-                this._CVS.add(this._rainObj)
+                CVS.add(this._rainObj)
             }
             this.#rainLoop()
             clearInterval(this._rainInterval)
             this._rainInterval = setInterval(this.#rainLoop.bind(this), RainManager.#SETTINGS.rate)
-            this._CVS.start()
+            CVS.start()
         }
     }
 
     stop() {
+        this._startTime = null
+        this._CVS.stop()
         clearInterval(this._rainInterval)
         this._rainInterval = null
         this._rainObj.clear()
@@ -117,7 +147,7 @@ canvas[_cvsde=true] {
                     ()=>dot.remove()// object pooling todo?
                 ))
             },
-            null, true, 
+            null, true
         )
     }
 
@@ -125,6 +155,10 @@ canvas[_cvsde=true] {
         const requireRestart = RainManager.#SETTINGS.rate !== newSettings.rate
         RainManager.#SETTINGS = {...RainManager.#SETTINGS, ...newSettings}
         if (requireRestart && this.isRaining) this.start()
+    }
+
+    updateFpsSafeLimit(fpsSafeLimit) {
+        RainManager.#FPS_SAFE_LIMIT = fpsSafeLimit
     }
 
     get hasCanvas() {return Boolean(this._CVS)}

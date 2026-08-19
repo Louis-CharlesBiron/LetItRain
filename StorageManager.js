@@ -1,7 +1,8 @@
 class StorageManager {
     static INSTANCE = null
-    static STORAGE = chrome.storage.sync
+    static STORAGE = STORAGE
     static STORAGE_REGULATOR_DELAY = 500
+    static SETTINGS_UPDATE_REGULATOR_DELAY = 18
 
     constructor() {
         if (StorageManager.INSTANCE) return StorageManager.INSTANCE
@@ -10,11 +11,14 @@ class StorageManager {
             this.get(res=>{
                 if (!this.isDefined(res)) this.resetStorage()
                 else {
-                    const {rate, amount, width, height, fallTime, color, overlayActive} = res
+                    const {rate, amount, width, height, fallTime, color, overlayActive, fpsSafeLimit, statusText} = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
-                    this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), 18)
+                    this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
 
                     this.#updateOverlayActive(overlayActive, true)
+                    this.#updateFpsSafeLimit(fpsSafeLimit)
+                    this.#updateStatus(statusText)
+
                     this.#updateRate(rate, true)
                     this.#updateAmount(amount, true)
                     this.#updateWidth(width, true)
@@ -28,9 +32,13 @@ class StorageManager {
         }
     }
 
+    #save() {
+        this._storageRegulator(this._activeStorage)
+    }
+
     #updateAttribute(preventStorage) {
         this._settingsUpdateRegulator(parseSettings(this._activeStorage))
-        if (!preventStorage) this._storageRegulator(this._activeStorage)
+        if (!preventStorage) this.#save()
     }
 
     #updateRate(value, preventStorage) {
@@ -57,7 +65,7 @@ class StorageManager {
         this._activeStorage.fallTime = fallTimeInput.value = fallTimeRange.value = value
         this.#updateAttribute(preventStorage)
     }
-    
+
     #updateColor(colorValue, alpha, preventStorage) {
         const rgba = [...this._activeStorage.color]
         if (colorValue) {
@@ -78,7 +86,18 @@ class StorageManager {
     #updateOverlayActive(value, uiOnly) {
         overlayCheckbox.checked = this._activeStorage.overlayActive = value
         overlayStatusText.textContent = value ? "on" : "off"
+        if (value) this.#updateStatus(null)
         if (!uiOnly) sendMessage({type:value ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
+    }
+
+    #updateFpsSafeLimit(value) {
+        this._activeStorage.fpsSafeLimit = fpsSafeLimitInput.value = value
+        this.#save()
+        sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT, value}, true)
+    }
+
+    #updateStatus(statusText) {
+        statusDisplay.textContent = statusText||""
     }
 
     #updateSettings(rate, amount, width, height, fallTime, color) {
@@ -115,4 +134,6 @@ class StorageManager {
     get updateColor() {return this.#updateColor.bind(this)}
     get updateOverlayActive() {return this.#updateOverlayActive.bind(this)}
     get updateSettings() {return this.#updateSettings.bind(this)}
+    get updateFpsSafeLimit() {return this.#updateFpsSafeLimit.bind(this)}
+    get updateStatus() {return this.#updateStatus.bind(this)}
 }

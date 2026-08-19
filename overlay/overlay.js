@@ -12,7 +12,8 @@ chrome.storage.sync.get(res=>{
 chrome.runtime.onMessage.addListener(({type, value})=>{
     if (type === MSG_TYPES.OVERLAY_ON) rainManager.create()
     else if (type === MSG_TYPES.OVERLAY_OFF) rainManager.delete()
-    else if (type == MSG_TYPES.OVERLAY_UPDATE_SETTINGS) rainManager.updateSettings(value)
+    else if (type === MSG_TYPES.OVERLAY_UPDATE_SETTINGS) rainManager.updateSettings(value)
+    else if (type === MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT) rainManager.updateFpsSafeLimit(value)
 })
 
 function parseSettings(storage) {

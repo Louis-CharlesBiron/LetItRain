@@ -3,6 +3,7 @@ chrome.management.getSelf(e=>version.textContent="V"+e.version)
 
 chrome.runtime.onMessage.addListener(({type, value})=>{
     if (type === MSG_TYPES.OVERLAY_TOGGLE) storageManager.updateOverlayActive(value, true)
+    else if (type === MSG_TYPES.STATUS) storageManager.updateStatus(value)
 })
 
 // Settings menu
@@ -52,40 +53,14 @@ alphaRange.oninput=e=>storageManager.updateColor(null, +e.target.value/100)
 
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, checked=>storageManager.updateOverlayActive(checked))
 
+setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
+addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
+
 // Presets
 
-presetLight.onclick=()=>{
-    storageManager.updateSettings(
-        45,                   // rate
-        1,                    // amount
-        .75,                  // width
-        10,                   // heigth
-        1050,                 // fallTime
-        [174, 194, 204, .35], // color
-    )
-}
-
-presetMild.onclick=()=>{
-    storageManager.updateSettings(
-        45,                   // rate
-        6,                    // amount
-        .75,                  // width
-        10,                   // heigth
-        850,                  // fallTime
-        [174, 194, 204, .4],  // color
-    )
-}
-
-presetHeavy.onclick=()=>{
-    storageManager.updateSettings(
-        15,                   // rate
-        7,                    // amount
-        1,                    // width
-        20,                   // heigth
-        500,                  // fallTime
-        [174, 194, 204, .35], // color
-    )
-}
+presetLight.onclick=()=>storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
+presetMild.onclick=()=>storageManager.updateSettings(45, 6, .75, 10, 850, [174, 194, 204, .4])
+presetHeavy.onclick=()=>storageManager.updateSettings(15, 7, 1, 20, 500, [174, 194, 204, .35],)
 
 presetRandom.onclick=()=>{
     const random = CDEUtils.random
