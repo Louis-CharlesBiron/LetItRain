@@ -3,7 +3,7 @@ const DEFAULT_SETTINGS = {
     rate: 45,
     amount: 4,
     color: [174, 194, 204, .35],
-    easing: "easeInCubic",
+    easing: Anim.easeInCubic.name,
     fallTime: 1000,
     width: .75,
     height: 10,
@@ -30,4 +30,41 @@ MSG_TYPES = {
     STATUS: _mt_i++,
 },
 STORAGE = chrome.storage.sync,
-SAFE_LIMIT_STATUS_TEXT = "Rain turned off due to fps being below limit"
+SAFE_LIMIT_STATUS_TEXT = "Rain turned off due to fps being below limit",
+EASINGS = [
+    // IN
+    "*"+Anim.easeInCubic.name,
+    "*"+Anim.easeInCirc.name,
+    Anim.easeInExpo.name,
+    Anim.easeInQuad.name,
+    Anim.easeInQuart.name,
+    Anim.easeInQuint.name,
+    Anim.easeInSine.name,
+    Anim.easeInBack.name,
+    Anim.easeInBounce.name,
+    Anim.easeInElastic.name,
+    // IN OUT
+    Anim.easeInOutCubic.name,
+    Anim.easeInOutCirc.name,
+    Anim.easeInOutExpo.name,
+    Anim.easeInOutQuad.name,
+    "*"+Anim.easeInOutQuart.name,
+    Anim.easeInOutQuint.name,
+    "*"+Anim.easeInOutSine.name,
+    Anim.easeInOutBack.name,
+    Anim.easeInOutBounce.name,
+    Anim.easeInOutElastic.name,
+    // OUT
+    Anim.easeOutCubic.name,
+    Anim.easeOutCirc.name,
+    Anim.easeOutExpo.name,
+    Anim.easeOutQuad.name,
+    Anim.easeOutQuart.name,
+    Anim.easeOutQuint.name,
+    "*"+Anim.easeOutSine.name,
+    Anim.easeOutBack.name,
+    "*"+Anim.easeOutBounce.name,
+    Anim.easeOutElastic.name,
+    // OTHER
+    "*"+Anim.linear.name
+]

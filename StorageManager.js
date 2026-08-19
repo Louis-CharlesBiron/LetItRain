@@ -11,7 +11,10 @@ class StorageManager {
             this.get(res=>{
                 if (!this.isDefined(res)) this.resetStorage()
                 else {
-                    const {rate, amount, width, height, fallTime, color, overlayActive, fpsSafeLimit, statusText} = res
+                    const {
+                        rate, amount, width, height, fallTime, color, easing, 
+                        overlayActive, fpsSafeLimit, statusText
+                    } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
 
@@ -25,6 +28,7 @@ class StorageManager {
                     this.#updateHeight(height, true)
                     this.#updateFallTime(fallTime, true)
                     this.#updateColor(color.slice(0,3), color[3], true)
+                    this.#updateEasing(easing, true)
                 }
             })
             
@@ -83,6 +87,11 @@ class StorageManager {
         this.#updateAttribute(preventStorage)
     }
 
+    #updateEasing(value, preventStorage) {
+        this._activeStorage.easing = easingSelect.value = value
+        this.#updateAttribute(preventStorage)
+    }
+
     #updateOverlayActive(value, uiOnly) {
         overlayCheckbox.checked = this._activeStorage.overlayActive = value
         overlayStatusText.textContent = value ? "on" : "off"
@@ -136,4 +145,5 @@ class StorageManager {
     get updateSettings() {return this.#updateSettings.bind(this)}
     get updateFpsSafeLimit() {return this.#updateFpsSafeLimit.bind(this)}
     get updateStatus() {return this.#updateStatus.bind(this)}
+    get updateEasing() {return this.#updateEasing.bind(this)}
 }

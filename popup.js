@@ -56,8 +56,12 @@ keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActi
 setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
 addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
 
-// Presets
+fillSelectOptions(easingSelect, EASINGS)
+addWheelIncrement(easingSelect, null, storageManager.updateEasing)
+easingSelect.oninput=e=>storageManager.updateEasing(e.target.value)
 
+
+// Presets
 presetLight.onclick=()=>storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
 presetMild.onclick=()=>storageManager.updateSettings(45, 6, .75, 10, 850, [174, 194, 204, .4])
 presetHeavy.onclick=()=>storageManager.updateSettings(15, 7, 1, 20, 500, [174, 194, 204, .35],)

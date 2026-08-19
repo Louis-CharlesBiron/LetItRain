@@ -130,3 +130,18 @@ function parseSettings(storage) {
         radius: storage.radius,
     }
 }
+
+/**
+ * Fills the options of a select element
+ * @param {HTMLSelectElement} input The input of 'number' type
+ * @param {Array} optionNames The name of each option 
+ * @param {Function?} valueMapper Can be used to define a custom option's value. (index, optionName)=>{return optionValue}
+ */
+function fillSelectOptions(input, optionNames) {
+    optionNames.forEach(name=>{
+        const option = document.createElement("option")
+        option.value = name.replaceAll("*", "")
+        option.textContent = name
+        input.appendChild(option)
+    })
+}
