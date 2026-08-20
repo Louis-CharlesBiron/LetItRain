@@ -3,11 +3,9 @@ console.log("INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJE
 
 chrome.storage.sync.get(res=>{
     rainManager.updateRainbowActive(res.rainbowActive)
+    rainManager.updateSettings(parseSettings(res))
 
-    if (res.overlayActive) {
-        rainManager.updateSettings(parseSettings(res))
-        rainManager.create()
-    }
+    if (res.overlayActive) rainManager.create()
     else rainManager.delete()
 })
 

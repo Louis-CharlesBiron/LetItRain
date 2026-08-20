@@ -64,18 +64,21 @@ easingSelect.oninput=e=>storageManager.updateEasing(e.target.value)
 
 // Presets
 presetLight.onclick=()=>{
-    storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
+    storageManager.updateSettings(45, 1, null, null, 1050)
     storageManager.updateEasing(DEFAULT_STORAGE.easing)
 }
 presetMild.onclick=()=>{
-    storageManager.updateSettings(45, 6, .75, 10, 850, [174, 194, 204, .4])
+    storageManager.updateSettings(45, 6, null, null, 850)
     storageManager.updateEasing(DEFAULT_STORAGE.easing)
 }
 presetHeavy.onclick=()=>{
-    storageManager.updateSettings(15, 7, 1, 20, 500, [174, 194, 204, .35])
+    storageManager.updateSettings(15, 7, null, null, 500)
     storageManager.updateEasing(DEFAULT_STORAGE.easing)
 }
-
+presetReset.onclick=()=>{
+    storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
+    storageManager.updateEasing(DEFAULT_STORAGE.easing)
+}
 presetRandom.onclick=()=>{
     const random = CDEUtils.random
     storageManager.updateSettings(

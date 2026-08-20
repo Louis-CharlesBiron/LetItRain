@@ -1,8 +1,25 @@
+const RT_SIZE = 1<<16, RT_MASK = RT_SIZE-1, RANDOM_TABLE = (()=>{
+    const table = new Float32Array(RT_SIZE), random = Math.random
+    for (let i=0;i<RT_SIZE;i++) table[i] = random()
+    return table
+})()
+
+let lir_rIndex = 0
+function random(min, max, decimals=0) {
+    const randomNumber = RANDOM_TABLE[lir_rIndex++&RT_MASK]
+    max+=(decimals?0:1)
+    if (decimals) {
+        const precision = 10**decimals
+        return Math.round((randomNumber*(max-min)+min)*precision)/precision
+    } else return (randomNumber*(max-min)+min)>>0
+}
+
 class RainManager {
     static INSTANCE = null
     static #RAINBOW_ACTIVE = false
     static #FPS_SAFE_LIMIT = 22
     static SAFE_BUFFER_TIME = 1500
+    static POINTER_LIMIT = 350
     static TURNING_OFF = -1
     static #INJECTED_CSS = `
 html, body {
@@ -32,6 +49,7 @@ canvas[_cvsde=true] {
             this._rainObj = this.#createRainContainer()
             this._rainInterval = null
             this._rainbowColorCache = null
+            this._pool = []
             return RainManager.INSTANCE = this
         }
     }
@@ -77,7 +95,6 @@ canvas[_cvsde=true] {
         }
     }
 
-
     delete() {
         if (this.hasCanvas) {
             this.stop()
@@ -102,26 +119,29 @@ canvas[_cvsde=true] {
 
     #createRainContainer() {
         const mod = CDEUtils.mod, clamp = CDEUtils.clamp
-        return new Shape(null, null, null, null, 350, (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
-            if (isActive) dot.a = mod(dot.initColor[3], clamp(ratio-.15, 0, 1), -(dot.initColor[3]))
+        return new Shape(null, null, null, null, RainManager.POINTER_LIMIT, (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
+            if (isActive) {
+                const initA = dot.initColor[3]
+                dot.a = mod(initA, clamp(ratio-.15, 0, 1), -initA)
+            }
         })
     }
 
-    #rainLoop() {
-        const rainObj = this._rainObj, amount = RainManager.#SETTINGS.amount
-        for (let i=0;i<amount;i++) rainObj.add(this.#createRainDrop())
+    #rainLoop(rainObj) {
+        const amount = RainManager.#SETTINGS.amount, createRainDrop = this.#createRainDrop.bind(this), add = rainObj.add.bind(rainObj)
+        for (let i=0;i<amount;i++) add(createRainDrop())
     }
 
     start() {
         if (this.hasCanvas) {
-            const CVS = this._CVS
-            if (!this._rainObj.parent?.id !== CVS.id) {
-                this._rainObj._parent = null
-                CVS.add(this._rainObj)
+            const CVS = this._CVS, rainObj = this._rainObj
+            if (!rainObj.parent?.id !== CVS.id) {
+                rainObj._parent = null
+                CVS.add(rainObj)
             }
-            this.#rainLoop()
+            this.#rainLoop(rainObj)
             clearInterval(this._rainInterval)
-            this._rainInterval = setInterval(this.#rainLoop.bind(this), RainManager.#SETTINGS.rate)
+            this._rainInterval = setInterval(()=>this.#rainLoop(rainObj), RainManager.#SETTINGS.rate)
             CVS.start()
         }
     }
@@ -132,32 +152,53 @@ canvas[_cvsde=true] {
         clearInterval(this._rainInterval)
         this._rainInterval = null
         this._rainObj.clear()
+        this._pool = []
     }
 
-    #createRainDrop() {// TODO OPTIMIZE
-        const random = CDEUtils.random, {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS
+    #createRainDrop() {
+        let usePool = 0
 
-        const [cvsWidth, cvsHeight] = this._CVS.size,
-            radius = baseRadius+random(...radiusRange, 2),
-            scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
-            fallHeight = heightPadding+baseRadius*scaling[1],
-            totalFall = -fallHeight+(cvsHeight+fallHeight*2)
+        if (usePool) {
+            const dot = this._pool.pop()
+            if (dot) return dot
+        }
 
-        return new Dot(
-            [random(0, cvsWidth), -fallHeight],
-            radius,
-            color,
+        return new Dot(null, null, null, 
             dot=>{
+                const CVS = this._CVS,
+                {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS,
+                [cvsWidth, cvsHeight] = CVS.size,
+                radius = baseRadius+random(...radiusRange, 2),
+                scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
+                scaledHeight = heightPadding+radius*scaling[1],
+                totalFall = -scaledHeight+(cvsHeight+scaledHeight*2),
+                isBouncyEasing = easing.includes("Back") || easing.includes("Bounce") || easing.includes("Elastic"),
+                scalingY = scaling[1],
+                isWithing = CVS.isWithin.bind(CVS)
+                
+                dot.pos = [random(0, cvsWidth), -scaledHeight]
+                dot.radius = radius
+                dot.color = color
                 dot.scale = scaling
+
+                dot.clearAnims()
                 dot.playAnim(new Anim(
-                    prog=>dot.y = totalFall*prog,
+                    prog=>{
+                        dot.y = totalFall*prog
+                        if (!isBouncyEasing && !isWithing(dot.pos, scalingY)) {
+                            dot.remove()
+                            //this._pool.push(dot)
+                        }
+                    },
                     fallTime+random(fallTimeRange[0], fallTimeRange[1]),
-                    typeof easing==="string" ? Anim[easing] : easing,
-                    ()=>dot.remove()// object pooling todo?
+                    Anim[easing],
+                    ()=>{
+                        dot.remove()
+                        if (usePool) this._pool.push(dot)
+                    }
                 ))
             },
-            null, true
-        )
+        null, true)
     }
 
     updateSettings(newSettings) {

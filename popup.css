@@ -228,6 +228,7 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
     letter-spacing: 0px !important;
 }
 .checkCore:before {
+    transition: 0.4s all;
     position: absolute;
     content: "";
     height: 21.5px;
@@ -366,14 +367,17 @@ select {
 
 .settingsSection > div {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    width: 70%;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
 }
 
 .settingsSection > div > div {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .settingsSection button {
