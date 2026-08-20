@@ -18,7 +18,7 @@ class RainManager {
     static INSTANCE = null
     static #RAINBOW_ACTIVE = false
     static #FPS_SAFE_LIMIT = 22
-    static SAFE_BUFFER_TIME = 1500
+    static SAFE_BUFFER_TIME = 3000
     static POINTER_LIMIT = 350
     static TURNING_OFF = -1
     static #INJECTED_CSS = `
@@ -49,7 +49,6 @@ canvas[_cvsde=true] {
             this._rainObj = this.#createRainContainer()
             this._rainInterval = null
             this._rainbowColorCache = null
-            this._pool = []
             return RainManager.INSTANCE = this
         }
     }
@@ -61,7 +60,7 @@ canvas[_cvsde=true] {
 
         if (startTime === RainManager.TURNING_OFF) return;
         else if (!startTime) this._startTime = this._CVS.timeStamp
-        else if (fps < RainManager.#FPS_SAFE_LIMIT && (this._CVS.timeStamp-startTime) > RainManager.SAFE_BUFFER_TIME) this.#toggleOff()
+        else if (fps < RainManager.#FPS_SAFE_LIMIT && (this._CVS.timeStamp-startTime) > RainManager.SAFE_BUFFER_TIME) this.#toggleOff(fps)
         
         fpsDisplay.textContent = fps+" / "+this._rainObj.dots.length
 
@@ -73,7 +72,8 @@ canvas[_cvsde=true] {
         }
     }
 
-    #toggleOff() {
+    #toggleOff(fpsLimit) {
+        if (fpsLimit) log(SAFE_LIMIT_STATUS_TEXT+".%c("+fpsLimit+"<"+RainManager.#FPS_SAFE_LIMIT+")")
         this._startTime = RainManager.TURNING_OFF
         this.delete()
         chrome.runtime.sendMessage({type:MSG_TYPES.OVERLAY_TOGGLE, value:false})
@@ -91,6 +91,9 @@ canvas[_cvsde=true] {
             CVS.setMouseLeave()
             CVS.setMouseDown()
             CVS.setMouseUp()
+            CVS.onVisibilityChangeCB=()=>this._startTime = null
+
+
             this.start()
         }
     }
@@ -128,8 +131,37 @@ canvas[_cvsde=true] {
     }
 
     #rainLoop(rainObj) {
-        const amount = RainManager.#SETTINGS.amount, createRainDrop = this.#createRainDrop.bind(this), add = rainObj.add.bind(rainObj)
-        for (let i=0;i<amount;i++) add(createRainDrop())
+        const amount = RainManager.#SETTINGS.amount, add = rainObj.add.bind(rainObj)
+        for (let i=0;i<amount;i++) add(new Dot(null, null, null, 
+            dot=>{
+                const CVS = this._CVS,
+                {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS,
+                [cvsWidth, cvsHeight] = CVS.size,
+                radius = baseRadius+random(...radiusRange, 2),
+                scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
+                scaledHeight = heightPadding+radius*scaling[1],
+                totalFall = -scaledHeight+(cvsHeight+scaledHeight*2),
+                isBouncyEasing = easing.includes("Back") || easing.includes("Bounce") || easing.includes("Elastic"),
+                scalingY = scaling[1],
+                isWithing = CVS.isWithin.bind(CVS)
+                
+                dot.pos = [random(0, cvsWidth), -scaledHeight]
+                dot.radius = radius
+                dot.color = color
+                dot.scale = scaling
+
+                dot.clearAnims()
+                dot.playAnim(new Anim(
+                    prog=>{
+                        dot.y = totalFall*prog
+                        if (!isBouncyEasing && !isWithing(dot.pos, scalingY)) dot.remove()
+                    },
+                    fallTime+random(fallTimeRange[0], fallTimeRange[1]),
+                    Anim[easing],
+                    ()=>dot.remove()
+                ))
+            },
+        null, true))
     }
 
     start() {
@@ -152,53 +184,6 @@ canvas[_cvsde=true] {
         clearInterval(this._rainInterval)
         this._rainInterval = null
         this._rainObj.clear()
-        this._pool = []
-    }
-
-    #createRainDrop() {
-        let usePool = 0
-
-        if (usePool) {
-            const dot = this._pool.pop()
-            if (dot) return dot
-        }
-
-        return new Dot(null, null, null, 
-            dot=>{
-                const CVS = this._CVS,
-                {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS,
-                [cvsWidth, cvsHeight] = CVS.size,
-                radius = baseRadius+random(...radiusRange, 2),
-                scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
-                scaledHeight = heightPadding+radius*scaling[1],
-                totalFall = -scaledHeight+(cvsHeight+scaledHeight*2),
-                isBouncyEasing = easing.includes("Back") || easing.includes("Bounce") || easing.includes("Elastic"),
-                scalingY = scaling[1],
-                isWithing = CVS.isWithin.bind(CVS)
-                
-                dot.pos = [random(0, cvsWidth), -scaledHeight]
-                dot.radius = radius
-                dot.color = color
-                dot.scale = scaling
-
-                dot.clearAnims()
-                dot.playAnim(new Anim(
-                    prog=>{
-                        dot.y = totalFall*prog
-                        if (!isBouncyEasing && !isWithing(dot.pos, scalingY)) {
-                            dot.remove()
-                            //this._pool.push(dot)
-                        }
-                    },
-                    fallTime+random(fallTimeRange[0], fallTimeRange[1]),
-                    Anim[easing],
-                    ()=>{
-                        dot.remove()
-                        if (usePool) this._pool.push(dot)
-                    }
-                ))
-            },
-        null, true)
     }
 
     updateSettings(newSettings) {

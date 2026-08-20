@@ -70,4 +70,24 @@ EASINGS = [
     // OTHER
     "*"+Anim.linear.name
 ],
-RAINBOW_DELAY = 18
+RAINBOW_DELAY = 18,
+log = text=>{
+    console.log(
+        "%c"+text, `
+        padding: 1.5px 6px;
+        border-radius: 4.5px;
+
+        color:rgb(159, 191, 236);
+        background: #0f172a;
+
+        font-style: italic;
+        font-size: 14px;
+
+        text-shadow: 1px 1px 12px rgba(94, 153, 182, 0.8);`,
+        `
+        color:rgb(91, 218, 129);
+        padding: 1.5px 8px;
+        font-size: 13px;
+        `
+      )
+}

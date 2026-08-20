@@ -1,5 +1,6 @@
 const storageManager = new StorageManager()
-chrome.management.getSelf(e=>version.textContent="V"+e.version)
+chrome.management.getSelf(({version})=>version.textContent = "V"+version)
+log("To reset the extension settings, run:%c'storageManager.resetStorage()'")
 
 chrome.runtime.onMessage.addListener(({type, value})=>{
     if (type === MSG_TYPES.OVERLAY_TOGGLE) storageManager.updateOverlayActive(value, true)

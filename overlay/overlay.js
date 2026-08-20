@@ -1,5 +1,5 @@
 let rainManager = new RainManager()
-console.log("INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-INJECTED-") // TODO
+log("Let It Rain:%cReady")
 
 chrome.storage.sync.get(res=>{
     rainManager.updateRainbowActive(res.rainbowActive)
