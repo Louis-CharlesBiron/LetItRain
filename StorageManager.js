@@ -114,12 +114,10 @@ class StorageManager {
         rainbowCheckbox.checked = this._activeStorage.rainbowActive = value
         if (value) this._rainbowInterval = rainbow(RAINBOW_DELAY)
         else {
-            console.log(value, this._rainbowInterval)
             clearInterval(this._rainbowInterval)
             this._rainbowInterval = null
             document.documentElement.style.filter = ""
         }
-        console.log(value, this._rainbowInterval)
         sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
     }
 

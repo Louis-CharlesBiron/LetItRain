@@ -84,12 +84,13 @@ function setRegularNumberInput(input, actionCB) {
     const hasActionCB = typeof actionCB === "function", min = +input.min||0, max = +input.max||Infinity
     input.title = `Min: ${min} | Max: ${max}`
 
-    input.addEventListener("input", ()=>{
-        const v = +input.value
-        // console.log(v, input.value, v > max ? max : v)
-        // TODO fix , or . decimal numbers
-        input.value = v > max ? max : v
-        if (hasActionCB) actionCB(+input.value)
+    input.addEventListener("input", e=>{
+        if (!(e.data === "," || e.data === ".")) {
+            const v = +input.value
+            input.value = 0
+            input.value = v > max ? max : v
+            if (hasActionCB) actionCB(+input.value)
+        } 
     })
     input.addEventListener("blur", ()=>{
         const v = +input.value
