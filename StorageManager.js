@@ -83,8 +83,13 @@ class StorageManager {
             colorInput.value = Color.convertTo(rgba, Color.CONVERTABLE_FORMATS.HEX).slice(0, 7)
         }
         if (alpha) {
-            alphaRange.value = alpha*100
+            const displayAlpha = alpha*100
+            alphaRange.value = displayAlpha
+            alphaDisplay.textContent = displayAlpha|0
+            alphaDisplay.style.opacity = alpha
+            alphaDisplay.style.right = (.5+(136*(1-alpha)))+"px"
             rgba[3] = alpha
+            
         }
         this._activeStorage.color = [...rgba]
         this.#updateAttribute(preventStorage)

@@ -446,3 +446,15 @@ select {
     cursor: help;
 }
 .credits:hover {opacity: 0.75;}
+
+#alphaDisplay {
+    width: 25px;
+    position: absolute;
+    right: 6px;
+    top: 7px;
+    text-align: center;
+    font-size: 0.6em;
+    letter-spacing: -0.5px;
+    transition: all 0s !important;
+    pointer-events: none;
+}
