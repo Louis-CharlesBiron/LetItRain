@@ -16,6 +16,7 @@ DEFAULT_STORAGE = {
     fpsSafeLimit: 22,
     statusText: null,
     rainbowActive: false,
+    customPreset: null
 },
 OVERLAY_SCRIPTS = [
     "overlay/canvasDotEffect.js",
@@ -91,4 +92,5 @@ log = text=>{
         font-size: 13px;
         `
       )
-}
+},
+SAVE_CUSTOM_PRESET_TEXT = "Save Custom Preset"

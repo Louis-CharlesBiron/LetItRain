@@ -13,7 +13,7 @@ class StorageManager {
                 else {
                     const {
                         rate, amount, width, height, fallTime, color, easing, limit,
-                        overlayActive, fpsSafeLimit, statusText,
+                        overlayActive, fpsSafeLimit, statusText, customPreset
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
@@ -22,6 +22,7 @@ class StorageManager {
                     this.#updateOverlayActive(overlayActive, true)
                     this.#updateFpsSafeLimit(fpsSafeLimit)
                     this.#updateStatus(statusText)
+                    this.#updateCustomPreset(customPreset, true)
 
                     this.#updateRate(rate, true)
                     this.#updateAmount(amount, true)
@@ -127,6 +128,11 @@ class StorageManager {
         sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
     }
 
+    #updateCustomPreset(presetSettings, preventStorage) {
+        this._activeStorage.customPreset = presetSettings
+        if (!preventStorage) this.#save()
+    }
+
     #updateSettings(rate, amount, width, height, fallTime, color, easing, limit) {
         if (rate) this.#updateRate(rate)
         if (amount) this.#updateAmount(amount)
@@ -155,17 +161,24 @@ class StorageManager {
         return Object.keys(res).length
     }
 
+    get hasCustomPreset() {return Boolean(this._activeStorage.customPreset)}
+    get customPreset() {return this._activeStorage.customPreset}
+    get activeStorage() {return this._activeStorage}
+
     get updateRate() {return this.#updateRate.bind(this)}
     get updateAmount() {return this.#updateAmount.bind(this)}
     get updateWidth() {return this.#updateWidth.bind(this)}
     get updateHeight() {return this.#updateHeight.bind(this)}
     get updateFallTime() {return this.#updateFallTime.bind(this)}
     get updateColor() {return this.#updateColor.bind(this)}
+    get updateEasing() {return this.#updateEasing.bind(this)}
+    get updateLimit() {return this.#updateLimit.bind(this)}
+
     get updateOverlayActive() {return this.#updateOverlayActive.bind(this)}
     get updateSettings() {return this.#updateSettings.bind(this)}
     get updateFpsSafeLimit() {return this.#updateFpsSafeLimit.bind(this)}
     get updateRainbowActive() {return this.#updateRainbowActive.bind(this)}
     get updateStatus() {return this.#updateStatus.bind(this)}
-    get updateEasing() {return this.#updateEasing.bind(this)}
-    get updateLimit() {return this.#updateLimit.bind(this)}
+    get updateCustomPreset() {return this.#updateCustomPreset.bind(this)}
+
 }

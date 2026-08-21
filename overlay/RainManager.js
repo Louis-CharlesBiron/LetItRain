@@ -54,6 +54,62 @@ canvas[_cvsde=true] {
         }
     }
 
+    start() {
+        if (this.hasCanvas) {
+            const CVS = this._CVS, rainObj = this._rainObj
+            if (!rainObj.parent?.id !== CVS.id) {
+                rainObj._parent = null
+                CVS.add(rainObj)
+            }
+            this.#rainLoop(rainObj)
+            clearInterval(this._rainInterval)
+            this._rainInterval = setInterval(()=>this.#rainLoop(rainObj), RainManager.#SETTINGS.rate)
+            CVS.start()
+        }
+    }
+    stop() {
+        this._startTime = null
+        this._CVS.stop()
+        clearInterval(this._rainInterval)
+        this._rainInterval = null
+        this._rainObj.clear()
+    }
+
+    create() {
+        if (!this.hasCanvas) {
+            this.#injectCSS()
+            this._FPSCounter = new FPSCounter()
+            const CVS = this._CVS = Canvas.create(null, this.#loop.bind(this))
+
+            CVS.setMouseMove()
+            CVS.setMouseLeave()
+            CVS.setMouseDown()
+            CVS.setMouseUp()
+            CVS.onVisibilityChangeCB=()=>this._startTime = null
+            this.start()
+        }
+    }
+    delete() {
+        if (this.hasCanvas) {
+            this.stop()
+            this.#deleteCSS()
+            this._CVS.cvs.remove()
+            this._CVS = null
+            this._FPSCounter = null
+        }
+    }
+
+    #injectCSS() {
+        const styleElement = document.createElement("style")
+        styleElement.id = RainManager.#INJECTED_CSS_ID
+        styleElement.appendChild(document.createTextNode(RainManager.#INJECTED_CSS))
+        document.documentElement.appendChild(styleElement)
+    }
+    #deleteCSS() {
+        const styleElement = document.getElementById(RainManager.#INJECTED_CSS_ID)
+        if (styleElement) styleElement.remove()
+    }
+
     #loop() {
         const fpsCounter = this._FPSCounter
         if (!fpsCounter) return;
@@ -82,43 +138,6 @@ canvas[_cvsde=true] {
         chrome.runtime.sendMessage({type:MSG_TYPES.OVERLAY_TOGGLE, value:false})
         chrome.runtime.sendMessage({type:MSG_TYPES.STATUS, value:SAFE_LIMIT_STATUS_TEXT})
         STORAGE.set({overlayActive:false, statusText:SAFE_LIMIT_STATUS_TEXT})
-    }
-
-    create() {
-        if (!this.hasCanvas) {
-            this.#injectCSS()
-            this._FPSCounter = new FPSCounter()
-            const CVS = this._CVS = Canvas.create(null, this.#loop.bind(this))
-
-            CVS.setMouseMove()
-            CVS.setMouseLeave()
-            CVS.setMouseDown()
-            CVS.setMouseUp()
-            CVS.onVisibilityChangeCB=()=>this._startTime = null
-            this.start()
-        }
-    }
-
-    delete() {
-        if (this.hasCanvas) {
-            this.stop()
-            this.#deleteCSS()
-            this._CVS.cvs.remove()
-            this._CVS = null
-            this._FPSCounter = null
-        }
-    }
-
-    #injectCSS() {
-        const styleElement = document.createElement("style")
-        styleElement.id = RainManager.#INJECTED_CSS_ID
-        styleElement.appendChild(document.createTextNode(RainManager.#INJECTED_CSS))
-        document.documentElement.appendChild(styleElement)
-    }
-
-    #deleteCSS() {
-        const styleElement = document.getElementById(RainManager.#INJECTED_CSS_ID)
-        if (styleElement) styleElement.remove()
     }
 
     #mouseClearRadiusCB() {
@@ -163,28 +182,6 @@ canvas[_cvsde=true] {
                 ))
             },
         null, true))
-    }
-
-    start() {
-        if (this.hasCanvas) {
-            const CVS = this._CVS, rainObj = this._rainObj
-            if (!rainObj.parent?.id !== CVS.id) {
-                rainObj._parent = null
-                CVS.add(rainObj)
-            }
-            this.#rainLoop(rainObj)
-            clearInterval(this._rainInterval)
-            this._rainInterval = setInterval(()=>this.#rainLoop(rainObj), RainManager.#SETTINGS.rate)
-            CVS.start()
-        }
-    }
-
-    stop() {
-        this._startTime = null
-        this._CVS.stop()
-        clearInterval(this._rainInterval)
-        this._rainInterval = null
-        this._rainObj.clear()
     }
 
     updateSettings(newSettings) {

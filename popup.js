@@ -13,7 +13,7 @@ const settingsMenuStyle = document.querySelector(".settingsParent").style
 function toggleSettingsMenu() {
     isSettingsOpened = !isSettingsOpened
     if (isSettingsOpened) settingsMenuStyle.top = "0"
-    else settingsMenuStyle.top = "calc(-85% - 4px)"
+    else settingsMenuStyle.top = "calc(-90% - 4px)"
 }
 
 settingsButton.onclick=toggleSettingsMenu
@@ -92,4 +92,33 @@ presetRandom.onclick=()=>{
         Color.random(Color.FORMATS.RGBA, true),
         EASINGS[random(0, EASINGS.length)].replaceAll("*","")
     )
+}
+presetCustom.onclick=()=>{
+    if (storageManager.hasCustomPreset) {
+        const {rate, amount, color, fallTime, width, height, easing, limit} = storageManager.customPreset
+        storageManager.updateSettings(rate, amount, width, height, fallTime, color, easing, limit)
+    }
+}
+
+let saveCustomPresetConfirm = 0, saveCustomPresetConfirmTimeoutId = null
+saveCustomPresetButton.onclick=()=>{
+    if (saveCustomPresetConfirm === 0) {
+        saveCustomPresetConfirm++
+        saveCustomPresetButton.textContent = SAVE_CUSTOM_PRESET_TEXT+"?"
+        clearTimeout(saveCustomPresetConfirmTimeoutId)
+        saveCustomPresetConfirmTimeoutId = setTimeout(()=>{
+            saveCustomPresetButton.textContent = SAVE_CUSTOM_PRESET_TEXT
+            saveCustomPresetConfirm = 0
+        }, 2000)
+    }
+    else if (saveCustomPresetConfirm === 1) {
+        saveCustomPresetConfirm++
+        clearTimeout(saveCustomPresetConfirmTimeoutId)
+        saveCustomPresetButton.textContent = SAVE_CUSTOM_PRESET_TEXT.replace("Save", "Saved")+"!"
+        setTimeout(()=>{
+            saveCustomPresetButton.textContent = SAVE_CUSTOM_PRESET_TEXT
+            saveCustomPresetConfirm = 0
+        }, 1500)
+        storageManager.updateCustomPreset(parseSettings(storageManager.activeStorage))
+    }
 }
