@@ -12,8 +12,8 @@ class StorageManager {
                 if (!this.isDefined(res)) this.resetStorage()
                 else {
                     const {
-                        rate, amount, width, height, fallTime, color, easing, 
-                        overlayActive, fpsSafeLimit, statusText, rainbowActive,
+                        rate, amount, width, height, fallTime, color, easing, limit,
+                        overlayActive, fpsSafeLimit, statusText,
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
@@ -30,6 +30,7 @@ class StorageManager {
                     this.#updateFallTime(fallTime, true)
                     this.#updateColor(color.slice(0,3), color[3], true)
                     this.#updateEasing(easing, true)
+                    this.#updateLimit(limit, true)
                 }
             })
             
@@ -93,6 +94,11 @@ class StorageManager {
         this.#updateAttribute(preventStorage)
     }
 
+    #updateLimit(value, preventStorage) {
+        this._activeStorage.limit = limitInput.value = limitRange.value = value
+        this.#updateAttribute(preventStorage)
+    }
+
     #updateOverlayActive(value, uiOnly) {
         overlayCheckbox.checked = this._activeStorage.overlayActive = value
         overlayStatusText.textContent = value ? "on" : "off"
@@ -121,13 +127,15 @@ class StorageManager {
         sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
     }
 
-    #updateSettings(rate, amount, width, height, fallTime, color) {
+    #updateSettings(rate, amount, width, height, fallTime, color, easing, limit) {
         if (rate) this.#updateRate(rate)
         if (amount) this.#updateAmount(amount)
         if (width) this.#updateWidth(width)
         if (height) this.#updateHeight(height)
         if (fallTime) this.#updateFallTime(fallTime)
         if (color) this.#updateColor(color.slice(0,3), color[3])
+        if (easing) this.#updateEasing(easing)
+        if (limit) this.#updateLimit(limit)
     }
 
     get(callback) {
@@ -159,4 +167,5 @@ class StorageManager {
     get updateRainbowActive() {return this.#updateRainbowActive.bind(this)}
     get updateStatus() {return this.#updateStatus.bind(this)}
     get updateEasing() {return this.#updateEasing.bind(this)}
+    get updateLimit() {return this.#updateLimit.bind(this)}
 }

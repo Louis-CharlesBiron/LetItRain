@@ -19,7 +19,8 @@ class RainManager {
     static #RAINBOW_ACTIVE = false
     static #FPS_SAFE_LIMIT = 22
     static SAFE_BUFFER_TIME = 3000
-    static POINTER_LIMIT = 350
+    static MINIMAL_VISIBLE_LIMIT = 50
+    static BOUNCY_EASINGS = new Set([Anim.easeInBack, Anim.easeInOutBack, Anim.easeOutBack, Anim.easeInBounce, Anim.easeInOutBounce, Anim.easeOutBounce, Anim.easeInElastic, Anim.easeInOutElastic, Anim.easeOutElastic].map(x=>x.name))
     static TURNING_OFF = -1
     static #INJECTED_CSS = `
 html, body {
@@ -46,7 +47,7 @@ canvas[_cvsde=true] {
             this._FPSCounter = null
             this._CVS = null
             this._startTime = null
-            this._rainObj = this.#createRainContainer()
+            this._rainObj = new Shape(null, null, null, null, RainManager.#SETTINGS.limit, this.#mouseClearRadiusCB())
             this._rainInterval = null
             this._rainbowColorCache = null
             return RainManager.INSTANCE = this
@@ -54,7 +55,9 @@ canvas[_cvsde=true] {
     }
 
     #loop() {
-        const fps = this._FPSCounter.getFps(), startTime = this._startTime
+        const fpsCounter = this._FPSCounter
+        if (!fpsCounter) return;
+        const fps = fpsCounter.getFps(), startTime = this._startTime
 
         const fpsDisplay = document.querySelector("title")
 
@@ -92,8 +95,6 @@ canvas[_cvsde=true] {
             CVS.setMouseDown()
             CVS.setMouseUp()
             CVS.onVisibilityChangeCB=()=>this._startTime = null
-
-
             this.start()
         }
     }
@@ -120,28 +121,28 @@ canvas[_cvsde=true] {
         if (styleElement) styleElement.remove()
     }
 
-    #createRainContainer() {
-        const mod = CDEUtils.mod, clamp = CDEUtils.clamp
-        return new Shape(null, null, null, null, RainManager.POINTER_LIMIT, (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
+    #mouseClearRadiusCB() {
+        const mod = CDEUtils.mod, SETTINGS = RainManager.#SETTINGS
+        return (render, dot, ratio, parentSetupResults, mouse, distance, parent, isActive)=>{
             if (isActive) {
-                const initA = dot.initColor[3]
-                dot.a = mod(initA, clamp(ratio-.15, 0, 1), -initA)
+                const initA = SETTINGS.color[3], uRatio = ratio-.15
+                dot.a = mod(initA, uRatio < 0 ? 0 : uRatio, -initA)
             }
-        })
+        }
     }
 
     #rainLoop(rainObj) {
-        const amount = RainManager.#SETTINGS.amount, add = rainObj.add.bind(rainObj)
+        const SETTINGS = RainManager.#SETTINGS, BOUNCY_EASINGS = RainManager.BOUNCY_EASINGS, amount = SETTINGS.amount, add = rainObj.add.bind(rainObj)
         for (let i=0;i<amount;i++) add(new Dot(null, null, null, 
             dot=>{
                 const CVS = this._CVS,
-                {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = RainManager.#SETTINGS,
+                {radius: baseRadius, radiusRange, widthRange, heightRange, width, height, heightPadding, fallTime, fallTimeRange, color, easing} = SETTINGS,
                 [cvsWidth, cvsHeight] = CVS.size,
                 radius = baseRadius+random(...radiusRange, 2),
                 scaling = [width+random(widthRange[0], widthRange[1], 2), height+random(heightRange[0], heightRange[1], 2)],
                 scaledHeight = heightPadding+radius*scaling[1],
                 totalFall = -scaledHeight+(cvsHeight+scaledHeight*2),
-                isBouncyEasing = easing.includes("Back") || easing.includes("Bounce") || easing.includes("Elastic"),
+                isBouncyEasing = BOUNCY_EASINGS.has(easing),
                 scalingY = scaling[1],
                 isWithing = CVS.isWithin.bind(CVS)
                 
@@ -187,9 +188,23 @@ canvas[_cvsde=true] {
     }
 
     updateSettings(newSettings) {
-        const requireRestart = RainManager.#SETTINGS.rate !== newSettings.rate
-        RainManager.#SETTINGS = {...RainManager.#SETTINGS, ...newSettings}
-        if (RainManager.#RAINBOW_ACTIVE) this._rainbowColorCache = new Color(RainManager.#SETTINGS.color)
+        const SETTINGS = RainManager.#SETTINGS, rainObj = this._rainObj, requireRestart = newSettings.rate && SETTINGS.rate !== newSettings.rate
+        
+        if (newSettings.rate) SETTINGS.rate = newSettings.rate
+        if (newSettings.amount) SETTINGS.amount = newSettings.amount
+        if (newSettings.color) SETTINGS.color = newSettings.color
+        if (newSettings.fallTime) SETTINGS.fallTime = newSettings.fallTime
+        if (newSettings.width) SETTINGS.width = newSettings.width
+        if (newSettings.height) SETTINGS.height = newSettings.height
+        if (newSettings.easing) SETTINGS.easing = newSettings.easing
+        if (newSettings.radius) SETTINGS.radius = newSettings.radius
+        if (newSettings.limit) {
+            rainObj.limit = SETTINGS.limit = newSettings.limit
+            if (SETTINGS.limit <= RainManager.MINIMAL_VISIBLE_LIMIT) rainObj.drawEffectCB = null
+            else if (!rainObj.drawEffectCB) rainObj.drawEffectCB = this.#mouseClearRadiusCB()
+        }
+
+        if (RainManager.#RAINBOW_ACTIVE) this._rainbowColorCache = new Color(SETTINGS.color)
         if (requireRestart && this.isRaining) this.start()
     }
 

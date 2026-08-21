@@ -27,5 +27,6 @@ function parseSettings(storage) {
         height: storage.height,
         easing: storage.easing,
         radius: storage.radius,
+        limit: storage.limit,
     }
 }

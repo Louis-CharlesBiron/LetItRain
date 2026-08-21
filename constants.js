@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
     width: .75,
     height: 10,
     radius: 2,
+    limit: 325,
 },
 DEFAULT_STORAGE = {
     ...DEFAULT_SETTINGS,

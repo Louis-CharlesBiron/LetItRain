@@ -10,11 +10,19 @@ chrome.runtime.onMessage.addListener(({type, value})=>{
 // Settings menu
 let isSettingsOpened = false
 const settingsMenuStyle = document.querySelector(".settingsParent").style
-
-settingsButton.onclick=()=>{
+function toggleSettingsMenu() {
     isSettingsOpened = !isSettingsOpened
     if (isSettingsOpened) settingsMenuStyle.top = "0"
     else settingsMenuStyle.top = "calc(-85% - 4px)"
+}
+
+settingsButton.onclick=toggleSettingsMenu
+
+document.onkeydown=e=>{
+    if (e.key.toLowerCase() === "escape" && isSettingsOpened) {
+        e.preventDefault()
+        toggleSettingsMenu()
+    }
 }
 
 chrome.commands.getAll(commands=>rainShortcutInput.value=commands.find(cmd=>cmd.name==="toggle_rain").shortcut)
@@ -52,6 +60,11 @@ addWheelIncrement(colorInput, [3, 10, 25], value=>storageManager.updateColor(val
 addWheelIncrement(alphaRange, [1, 5, 10], value=>storageManager.updateColor(null, value/100))
 alphaRange.oninput=e=>storageManager.updateColor(null, +e.target.value/100)
 
+setRegularNumberInput(limitInput, storageManager.updateLimit)
+addWheelIncrement(limitInput, [10, 50, 100], storageManager.updateLimit)
+addWheelIncrement(limitRange, [10, 50, 100], storageManager.updateLimit)
+limitRange.oninput=e=>storageManager.updateLimit(+e.target.value)
+
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, checked=>storageManager.updateOverlayActive(checked))
 
 keepCheckbox(rainbowCheckbox, null, "rainbowActive", DEFAULT_STORAGE.rainbowActive, checked=>storageManager.updateRainbowActive(checked))
@@ -64,22 +77,10 @@ addWheelIncrement(easingSelect, null, storageManager.updateEasing)
 easingSelect.oninput=e=>storageManager.updateEasing(e.target.value)
 
 // Presets
-presetLight.onclick=()=>{
-    storageManager.updateSettings(45, 1, null, null, 1050)
-    storageManager.updateEasing(DEFAULT_STORAGE.easing)
-}
-presetMild.onclick=()=>{
-    storageManager.updateSettings(45, 6, null, null, 850)
-    storageManager.updateEasing(DEFAULT_STORAGE.easing)
-}
-presetHeavy.onclick=()=>{
-    storageManager.updateSettings(15, 7, null, null, 500)
-    storageManager.updateEasing(DEFAULT_STORAGE.easing)
-}
-presetReset.onclick=()=>{
-    storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35])
-    storageManager.updateEasing(DEFAULT_STORAGE.easing)
-}
+presetLight.onclick=()=>storageManager.updateSettings(45, 1, null, null, 1050, null, DEFAULT_SETTINGS.easing)
+presetMild.onclick=()=>storageManager.updateSettings(45, 6, null, null, 850, null, DEFAULT_SETTINGS.easing)
+presetHeavy.onclick=()=>storageManager.updateSettings(15, 7, null, null, 500, null, DEFAULT_SETTINGS.easing)
+presetReset.onclick=()=>storageManager.updateSettings(45, 1, .75, 10, 1050, [174, 194, 204, .35], DEFAULT_SETTINGS.easing, DEFAULT_SETTINGS.limit)
 presetRandom.onclick=()=>{
     const random = CDEUtils.random
     storageManager.updateSettings(
@@ -88,7 +89,7 @@ presetRandom.onclick=()=>{
         random(+widthInput.min, +widthInput.max),
         random(+heightInput.min, +heightInput.max),
         random(+fallTimeInput.min, +fallTimeInput.max),
-        Color.random(Color.FORMATS.RGBA, true)
+        Color.random(Color.FORMATS.RGBA, true),
+        EASINGS[random(0, EASINGS.length)].replaceAll("*","")
     )
-    storageManager.updateEasing(EASINGS[random(0, EASINGS.length)].replaceAll("*",""))
 }

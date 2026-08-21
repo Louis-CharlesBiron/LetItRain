@@ -126,9 +126,9 @@ function parseSettings(storage) {
         fallTime: storage.fallTime,
         width: storage.width,
         height: storage.height,
-
         easing: storage.easing,
         radius: storage.radius,
+        limit: storage.limit,
     }
 }
 
