@@ -302,7 +302,9 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
     z-index: 10;
     border-bottom: 2px solid #659eb2;
     outline: 2px solid #8fd4eb;
-    /* box-shadow: -1px 20px 20px 10px #00000073; */
+}
+.settingsParent[style="top: 0px;"] {
+    box-shadow: -1px 20px 20px 10px #00000073;
 }
 
 button {
@@ -433,3 +435,14 @@ select {
 #saveCustomPresetButton {
     width: fit-content;
 }
+
+.credits {
+    position: absolute;
+    bottom: -0.5px;
+    right: 1px;
+    opacity: 0.3;
+    font-size: 0.65em;
+    font-style: italic;
+    cursor: help;
+}
+.credits:hover {opacity: 0.75;}
