@@ -69,6 +69,8 @@ keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActi
 
 keepCheckbox(rainbowCheckbox, null, "rainbowActive", DEFAULT_STORAGE.rainbowActive, checked=>storageManager.updateRainbowActive(checked))
 
+keepCheckbox(debugCheckbox, null, "debugActive", DEFAULT_STORAGE.debugActive, checked=>storageManager.updateDebugActive(checked))
+
 setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
 addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
 

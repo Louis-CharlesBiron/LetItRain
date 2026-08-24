@@ -436,7 +436,7 @@ select {
     width: fit-content;
 }
 
-.credits {
+.credits, #debugCheckboxParent {
     position: absolute;
     bottom: -0.5px;
     right: 1px;
@@ -444,8 +444,15 @@ select {
     font-size: 0.65em;
     font-style: italic;
     cursor: help;
+    letter-spacing: 0px;
 }
-.credits:hover {opacity: 0.75;}
+.credits:hover, #debugCheckboxParent:hover {opacity: 0.75;}
+
+#debugCheckboxParent {
+    left: 0px;
+    font-style: normal;
+    cursor: pointer;
+}
 
 #alphaDisplay {
     width: 25px;
@@ -457,4 +464,8 @@ select {
     letter-spacing: -0.5px;
     transition: all 0s !important;
     pointer-events: none;
+}
+
+.hidden {
+    display: none;
 }

@@ -4,6 +4,7 @@ log("Let It Rain:%cReady")
 chrome.storage.sync.get(res=>{
     rainManager.updateRainbowActive(res.rainbowActive)
     rainManager.updateSettings(parseSettings(res))
+    rainManager.updateDebugActive(res.debugActive)
 
     if (res.overlayActive) rainManager.create()
     else rainManager.delete()
@@ -15,6 +16,7 @@ chrome.runtime.onMessage.addListener(({type, value})=>{
     else if (type === MSG_TYPES.OVERLAY_UPDATE_SETTINGS) rainManager.updateSettings(value)
     else if (type === MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT) rainManager.updateFpsSafeLimit(value)
     else if (type === MSG_TYPES.RAINBOW_TOGGLE) rainManager.updateRainbowActive(value)
+    else if (type === MSG_TYPES.DEBUG_TOGGLE) rainManager.updateDebugActive(value)
 })
 
 function parseSettings(storage) {

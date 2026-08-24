@@ -18,6 +18,9 @@ class RainManager {
     static INSTANCE = null
     static #RAINBOW_ACTIVE = false
     static #FPS_SAFE_LIMIT = 22
+    static #DEBUG_ACTIVE = false
+    static #DEBUG_DISPLAY_ELEMENT = null
+    static #DEBUG_ELEMENT_ID = "lir_debug"
     static SAFE_BUFFER_TIME = 3000
     static MINIMAL_VISIBLE_LIMIT = 50
     static BOUNCY_EASINGS = new Set([Anim.easeInBack, Anim.easeInOutBack, Anim.easeOutBack, Anim.easeInBounce, Anim.easeInOutBounce, Anim.easeOutBounce, Anim.easeInElastic, Anim.easeInOutElastic, Anim.easeOutElastic].map(x=>x.name))
@@ -29,8 +32,19 @@ html, body {
     overflow: auto;
 }
 canvas[_cvsde=true] {
-    z-index: 99999999999999999999999999999 !important
-}`
+    z-index: 99999999999999999999999999999 !important;
+}
+#${RainManager.#DEBUG_ELEMENT_ID} {
+    position: absolute;
+    z-index: 999999999999999999999999999999 !important;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(255, 255, 255, 0.65);
+    color: black;
+    pointer-events: none;
+    font-size: 14px !important;
+}
+`
     static #INJECTED_CSS_ID = "lir_styles"
     static #SETTINGS = {
         ...DEFAULT_SETTINGS,
@@ -81,6 +95,10 @@ canvas[_cvsde=true] {
             this._FPSCounter = new FPSCounter()
             const CVS = this._CVS = Canvas.create(null, this.#loop.bind(this))
 
+            const debugElement = RainManager.#DEBUG_DISPLAY_ELEMENT = document.createElement("span")
+            debugElement.id = RainManager.#DEBUG_ELEMENT_ID
+            document.documentElement.appendChild(debugElement)
+
             CVS.setMouseMove()
             CVS.setMouseLeave()
             CVS.setMouseDown()
@@ -93,6 +111,7 @@ canvas[_cvsde=true] {
         if (this.hasCanvas) {
             this.stop()
             this.#deleteCSS()
+            RainManager.#DEBUG_DISPLAY_ELEMENT.remove()
             this._CVS.cvs.remove()
             this._CVS = null
             this._FPSCounter = null
@@ -115,13 +134,11 @@ canvas[_cvsde=true] {
         if (!fpsCounter) return;
         const fps = fpsCounter.getFps(), startTime = this._startTime
 
-        const fpsDisplay = document.querySelector("title")
-
         if (startTime === RainManager.TURNING_OFF) return;
         else if (!startTime) this._startTime = this._CVS.timeStamp
         else if (fps < RainManager.#FPS_SAFE_LIMIT && (this._CVS.timeStamp-startTime) > RainManager.SAFE_BUFFER_TIME) this.#toggleOff(fps)
         
-        fpsDisplay.textContent = fps+" / "+this._rainObj.dots.length
+        if (RainManager.#DEBUG_ACTIVE) RainManager.#DEBUG_DISPLAY_ELEMENT.textContent = fps+"FPS | "+this._rainObj.dots.length+" drops"
 
         if (RainManager.#RAINBOW_ACTIVE) {
             const SETTINGS = RainManager.#SETTINGS, a = SETTINGS.color[3]
@@ -186,7 +203,6 @@ canvas[_cvsde=true] {
 
     updateSettings(newSettings) {
         const SETTINGS = RainManager.#SETTINGS, rainObj = this._rainObj, requireRestart = newSettings.rate && SETTINGS.rate !== newSettings.rate
-        
         if (newSettings.rate) SETTINGS.rate = newSettings.rate
         if (newSettings.amount) SETTINGS.amount = newSettings.amount
         if (newSettings.color) SETTINGS.color = newSettings.color
@@ -212,6 +228,11 @@ canvas[_cvsde=true] {
     updateRainbowActive(rainbowActive) {
         RainManager.#RAINBOW_ACTIVE = rainbowActive
         this._rainbowColorCache = rainbowActive ? new Color(RainManager.#SETTINGS.color) : null
+    }
+
+    updateDebugActive(debugActive) {
+        RainManager.#DEBUG_ACTIVE = debugActive
+        if (!debugActive && RainManager.#DEBUG_DISPLAY_ELEMENT) RainManager.#DEBUG_DISPLAY_ELEMENT.textContent = ""
     }
 
     get hasCanvas() {return Boolean(this._CVS)}

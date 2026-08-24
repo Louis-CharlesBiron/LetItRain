@@ -138,6 +138,13 @@ class StorageManager {
         if (!preventStorage) this.#save()
     }
 
+    #updateDebugActive(value) {
+        debugCheckbox.checked = this._activeStorage.debugActive = value
+        debugCheckboxParent.textContent = value ? "Debug (On)" : "Debug"
+        debugCheckboxParent.style.fontStyle = value ? "normal" : "italic"
+        sendMessage({type:MSG_TYPES.DEBUG_TOGGLE, value}, true)
+    }
+
     #updateSettings(rate, amount, width, height, fallTime, color, easing, limit) {
         if (rate) this.#updateRate(rate)
         if (amount) this.#updateAmount(amount)
@@ -185,5 +192,6 @@ class StorageManager {
     get updateRainbowActive() {return this.#updateRainbowActive.bind(this)}
     get updateStatus() {return this.#updateStatus.bind(this)}
     get updateCustomPreset() {return this.#updateCustomPreset.bind(this)}
+    get updateDebugActive() {return this.#updateDebugActive.bind(this)}
 
 }
