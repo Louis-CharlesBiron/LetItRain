@@ -13,7 +13,7 @@ class StorageManager {
                 else {
                     const {
                         rate, amount, width, height, fallTime, color, easing, limit,
-                        overlayActive, fpsSafeLimit, statusText, customPreset
+                        overlayActive, fpsSafeLimit, statusText, customPreset, audioActive,
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
@@ -23,6 +23,7 @@ class StorageManager {
                     this.#updateFpsSafeLimit(fpsSafeLimit)
                     this.#updateStatus(statusText)
                     this.#updateCustomPreset(customPreset, true)
+                    this.#updateOverlayActive(audioActive, true)
 
                     this.#updateRate(rate, true)
                     this.#updateAmount(amount, true)
@@ -109,6 +110,10 @@ class StorageManager {
         overlayCheckbox.checked = this._activeStorage.overlayActive = value
         overlayStatusText.textContent = value ? "on" : "off"
         if (value) this.#updateStatus(null)
+        if (this._activeStorage.audioActive) {
+            sendMessage({type:value ? MSG_TYPES.AUDIO_PLAY : MSG_TYPES.AUDIO_STOP, value})
+            if (value) this.#updateAudioStatus(true)
+        }
         if (!uiOnly) sendMessage({type:value ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
     }
 
@@ -143,6 +148,19 @@ class StorageManager {
         debugCheckboxParent.textContent = value ? "Debug (On)" : "Debug"
         debugCheckboxParent.style.fontStyle = value ? "normal" : "italic"
         sendMessage({type:MSG_TYPES.DEBUG_TOGGLE, value}, true)
+    }
+
+    #updateAudioActive(value, uiOnly) {
+        const overlayActive = this._activeStorage.overlayActive
+        audioCheckbox.checked = this._activeStorage.audioActive = value
+        audioStatusText.textContent = value ? "TODO audioVolume" : "off"
+        if (overlayActive && value && typeof uiOnly==="boolean") this.#updateAudioStatus(true)
+        if (overlayActive && !uiOnly) sendMessage({type:value ? MSG_TYPES.AUDIO_PLAY : MSG_TYPES.AUDIO_STOP, value})
+    }
+
+    #updateAudioStatus(isRequest) {
+        if (isRequest) this.#updateStatus("Waiting for audio...")
+        else this.#updateStatus("")
     }
 
     #updateSettings(rate, amount, width, height, fallTime, color, easing, limit) {
@@ -193,5 +211,7 @@ class StorageManager {
     get updateStatus() {return this.#updateStatus.bind(this)}
     get updateCustomPreset() {return this.#updateCustomPreset.bind(this)}
     get updateDebugActive() {return this.#updateDebugActive.bind(this)}
+    get updateAudioActive() {return this.#updateAudioActive.bind(this)}
+    get updateAudioStatus() {return this.#updateAudioStatus.bind(this)}
 
 }

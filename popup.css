@@ -221,6 +221,9 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
     opacity: 0.7;
     color: rgb(var(--textColor));
 }
+.checkSmallText {
+    margin-left: 38px !important;
+}
 .checkboxParent:hover div {
     opacity: 1;
 }
@@ -243,6 +246,7 @@ input:focus:not([type=color]) {filter: brightness(1.425) hue-rotate(-20deg);}
 .checkboxParent > input + .checkCore:before {background-color: #a9e0f2;}
 .checkboxParent > input:checked + .checkCore {background-color: #335062;}
 .checkboxParent > input:checked + .checkCore > div {margin-left: 4.5px;}
+.checkboxParent > input:checked + .checkCore > .checkSmallText  {margin-left: 9px !important;}
 .checkboxParent > input:checked + .checkCore:before {transform: translateX(41px) rotate(90deg);}
 
 /* Fancy Checkbox Small */

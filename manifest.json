@@ -19,6 +19,10 @@
     "toggle_rain": {
       "description": "Toggles the rain on/off",
       "shortcut": "Alt+R"
+    },
+    "toggle_audio": {
+      "description": "Toggles the rain audio on/off",
+      "shortcut": "Alt+T"
     }
   },
   "action": {
@@ -34,7 +38,8 @@
       "run_at": "document_idle"
   }],
   "permissions": [
-    "storage"
+    "storage",
+    "offscreen"
   ],
   "host_permissions": ["<all_urls>"]
 }

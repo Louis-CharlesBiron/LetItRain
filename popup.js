@@ -5,6 +5,8 @@ log("To reset the extension settings, run:%c'storageManager.resetStorage()'")
 chrome.runtime.onMessage.addListener(({type, value})=>{
     if (type === MSG_TYPES.OVERLAY_TOGGLE) storageManager.updateOverlayActive(value, true)
     else if (type === MSG_TYPES.STATUS) storageManager.updateStatus(value)
+    else if (type === MSG_TYPES.AUDIO_TOGGLE) storageManager.updateAudioActive(value, true)
+    else if (type === MSG_TYPES.AUDIO_ENABLED) storageManager.updateAudioStatus()
 })
 
 // Settings menu
@@ -25,7 +27,7 @@ document.onkeydown=e=>{
     }
 }
 
-chrome.commands.getAll(commands=>rainShortcutInput.value=commands.find(cmd=>cmd.name==="toggle_rain").shortcut)
+chrome.commands.getAll(commands=>rainShortcutInput.value = commands.find(cmd=>cmd.name==="toggle_rain").shortcut)
 rainShortcutInput.onclick=()=>chrome.tabs.create({url:"chrome://extensions/shortcuts"})
 
 // Input settings
@@ -66,10 +68,9 @@ addWheelIncrement(limitRange, [10, 50, 100], storageManager.updateLimit)
 limitRange.oninput=e=>storageManager.updateLimit(+e.target.value)
 
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, checked=>storageManager.updateOverlayActive(checked))
-
 keepCheckbox(rainbowCheckbox, null, "rainbowActive", DEFAULT_STORAGE.rainbowActive, checked=>storageManager.updateRainbowActive(checked))
-
 keepCheckbox(debugCheckbox, null, "debugActive", DEFAULT_STORAGE.debugActive, checked=>storageManager.updateDebugActive(checked))
+keepCheckbox(audioCheckbox, null, "audioActive", DEFAULT_STORAGE.audioActive, (checked, isAtLaunch)=>storageManager.updateAudioActive(checked, isAtLaunch))
 
 setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
 addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
@@ -104,7 +105,7 @@ presetCustom.onclick=()=>{
 
 let saveCustomPresetConfirm = 0, saveCustomPresetConfirmTimeoutId = null
 saveCustomPresetButton.onclick=()=>{
-    if (saveCustomPresetConfirm === 0) {
+    if (!saveCustomPresetConfirm) {
         saveCustomPresetConfirm++
         saveCustomPresetButton.textContent = SAVE_CUSTOM_PRESET_TEXT+"?"
         clearTimeout(saveCustomPresetConfirmTimeoutId)

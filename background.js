@@ -1,10 +1,19 @@
 let _mt_i = 0
-const MSG_TYPES = {
+const STORAGE = chrome.storage.sync,
+MSG_TYPES = {
     OVERLAY_ON: _mt_i++,
     OVERLAY_OFF: _mt_i++,
     OVERLAY_UPDATE_SETTINGS: _mt_i++,
-    OVERLAY_TOGGLE: _mt_i++
-}, STORAGE = chrome.storage.sync
+    OVERLAY_TOGGLE: _mt_i++,
+    OVERLAY_UPDATE_FPS_SAFE_LIMIT: _mt_i++,
+    STATUS: _mt_i++,
+    RAINBOW_TOGGLE: _mt_i++,
+    DEBUG_TOGGLE: _mt_i++,
+    AUDIO_PLAY: _mt_i++,
+    AUDIO_STOP: _mt_i++,
+    AUDIO_TOGGLE: _mt_i++,
+    AUDIO_ENABLED: _mt_i++,
+}
 
 chrome.commands.onCommand.addListener(command=>{
     if (command === "toggle_rain") STORAGE.get(res=>{
@@ -13,6 +22,16 @@ chrome.commands.onCommand.addListener(command=>{
         sendMessage({type:isActive ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
         STORAGE.set({overlayActive:isActive})
     })
+    else if (command === "toggle_audio") STORAGE.get(res=>{
+        const isActive = !res.audioActive
+        sendMessage({type:MSG_TYPES.AUDIO_TOGGLE, value:isActive})
+        toggleAudio(isActive, res.overlayActive)
+        STORAGE.set({audioActive:isActive})
+    })
+})
+
+chrome.runtime.onMessage.addListener(({type, value})=>{
+    if (type === MSG_TYPES.AUDIO_PLAY || type === MSG_TYPES.AUDIO_STOP) STORAGE.get(res=>toggleAudio(value, res.overlayActive))
 })
 
 function sendMessage(obj, contentTabId) {
@@ -25,4 +44,16 @@ function sendMessage(obj, contentTabId) {
         })
     }
     else chrome.runtime.sendMessage(obj)
+}
+
+function toggleAudio(audioActive, overlayActive) {
+    const audioFile = chrome.runtime.getURL("assets/audio/rain1.mp3")
+
+    if (audioActive && overlayActive) chrome.runtime.getContexts({contextTypes:["OFFSCREEN_DOCUMENT"]}).then(docs=>{
+            if (docs.length) sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile})
+            else chrome.offscreen.createDocument({url:"overlay/offscreen.html", reasons:["AUDIO_PLAYBACK"], justification:"Play rain sounds if the option is enabled"}).then(()=>
+                sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile})
+            )
+        })
+    else if (!audioActive) sendMessage({type:MSG_TYPES.AUDIO_STOP})
 }
