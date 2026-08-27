@@ -51,7 +51,7 @@
                 <div class="controlsParent">
                     <!-- <span>Rain: </span> -->
                     <span class="overlayCheckParent"><label class="checkboxParent"><input id="overlayCheckbox" type="checkbox"><span class="checkCore"><div class="checkSmallText"><span>Rain</span><span id="overlayStatusText">Off</span></div></span></label></span>
-                    <span class="overlayCheckParent"><label class="checkboxParent"><input id="audioCheckbox" type="checkbox"><span class="checkCore"><div><span>Volume</span><span id="audioStatusText">100%</span></div></span></label></span>
+                    <span class="overlayCheckParent" id="audioVolumeInput" title="Scroll to change volume"><label class="checkboxParent"><input id="audioCheckbox" type="checkbox"><span class="checkCore"><div><span>Volume</span><span id="audioStatusText">100%</span></div></span></label></span>
                 </div>
             </div>
 
@@ -101,7 +101,7 @@
                     <div style="position: relative;">
                         <input type="color" id="colorInput">
                         <input type="range" min="5" max="100" step="1" id="alphaRange">
-                        <span id="alphaDisplay">100</span>
+                        <span id="alphaDisplay"></span>
                     </div>
                 </label>
                 <label>

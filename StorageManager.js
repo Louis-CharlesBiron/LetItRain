@@ -3,6 +3,8 @@ class StorageManager {
     static STORAGE = STORAGE
     static STORAGE_REGULATOR_DELAY = 500
     static SETTINGS_UPDATE_REGULATOR_DELAY = 18
+    static AUDIO_UPDATE_REGULATOR_DELAY = 50
+    static AUDIO_VOLUME_EXTRA_STEPS = [5, 10]
 
     constructor() {
         if (StorageManager.INSTANCE) return StorageManager.INSTANCE
@@ -13,17 +15,20 @@ class StorageManager {
                 else {
                     const {
                         rate, amount, width, height, fallTime, color, easing, limit,
-                        overlayActive, fpsSafeLimit, statusText, customPreset, audioActive,
+                        overlayActive, fpsSafeLimit, statusText, customPreset, audioActive, audioVolume,
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
-                    this._settingsUpdateRegulator = getRegulator(params=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value:params}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
+                    this._settingsUpdateRegulator = getRegulator(value=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
+                    this._audioUpdateRegulator = getRegulator(value=>sendMessage({type:MSG_TYPES.AUDIO_VOLUME_UPDATE, value}), StorageManager.AUDIO_UPDATE_REGULATOR_DELAY)
                     this._rainbowInterval = null
 
-                    this.#updateOverlayActive(overlayActive, true)
-                    this.#updateFpsSafeLimit(fpsSafeLimit)
+                    this.#updateOverlayActive(overlayActive, true, true)
+                    this.#updateFpsSafeLimit(fpsSafeLimit, true)
                     this.#updateStatus(statusText)
                     this.#updateCustomPreset(customPreset, true)
-                    this.#updateOverlayActive(audioActive, true)
+                    this.#updateAudioActive(audioActive, true)
+                    this._activeStorage.audioVolume = audioVolume
+                    this.#updateAudioVolume(0, true)
 
                     this.#updateRate(rate, true)
                     this.#updateAmount(amount, true)
@@ -44,34 +49,34 @@ class StorageManager {
         this._storageRegulator(this._activeStorage)
     }
 
-    #updateAttribute(preventStorage) {
+    #updateAttribute() {
         this._settingsUpdateRegulator(parseSettings(this._activeStorage))
-        if (!preventStorage) this.#save()
+        this.#save()
     }
 
     #updateRate(value, preventStorage) {
         this._activeStorage.rate = rateInput.value = rateRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
     
     #updateAmount(value, preventStorage) {
         this._activeStorage.amount = amountInput.value = amountRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
     
     #updateWidth(value, preventStorage) {
         this._activeStorage.width = widthInput.value = widthRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
     
     #updateHeight(value, preventStorage) {
         this._activeStorage.height = heightInput.value = heightRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
     
     #updateFallTime(value, preventStorage) {
         this._activeStorage.fallTime = fallTimeInput.value = fallTimeRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
 
     #updateColor(colorValue, alpha, preventStorage) {
@@ -93,41 +98,45 @@ class StorageManager {
             
         }
         this._activeStorage.color = [...rgba]
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
 
     #updateEasing(value, preventStorage) {
         this._activeStorage.easing = easingSelect.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
 
     #updateLimit(value, preventStorage) {
         this._activeStorage.limit = limitInput.value = limitRange.value = value
-        this.#updateAttribute(preventStorage)
+        if (!preventStorage) this.#updateAttribute()
     }
 
-    #updateOverlayActive(value, uiOnly) {
+    #updateOverlayActive(value, uiOnly, isAtLaunch) {
         overlayCheckbox.checked = this._activeStorage.overlayActive = value
         overlayStatusText.textContent = value ? "on" : "off"
         if (value) this.#updateStatus(null)
-        if (this._activeStorage.audioActive) {
-            sendMessage({type:value ? MSG_TYPES.AUDIO_PLAY : MSG_TYPES.AUDIO_STOP, value})
-            if (value) this.#updateAudioStatus(true)
+        if (!isAtLaunch) {
+            if (this._activeStorage.audioActive) {
+                sendMessage({type:value ? MSG_TYPES.AUDIO_PLAY : MSG_TYPES.AUDIO_STOP, value})
+                if (value) this.#updateAudioStatus(true)
+            }
+            if (!uiOnly) sendMessage({type:value ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
         }
-        if (!uiOnly) sendMessage({type:value ? MSG_TYPES.OVERLAY_ON : MSG_TYPES.OVERLAY_OFF}, true)
     }
 
-    #updateFpsSafeLimit(value) {
+    #updateFpsSafeLimit(value, isAtLaunch) {
         this._activeStorage.fpsSafeLimit = fpsSafeLimitInput.value = value
-        this.#save()
-        sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT, value}, true)
+        if (!isAtLaunch) {
+            this.#save()
+            sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_FPS_SAFE_LIMIT, value}, true)
+        }
     }
 
     #updateStatus(statusText) {
         statusDisplay.textContent = statusText||""
     }
 
-    #updateRainbowActive(value) {
+    #updateRainbowActive(value, isAtLaunch) {
         rainbowCheckbox.checked = this._activeStorage.rainbowActive = value
         if (value) this._rainbowInterval = rainbow(RAINBOW_DELAY)
         else {
@@ -135,7 +144,7 @@ class StorageManager {
             this._rainbowInterval = null
             document.documentElement.style.filter = ""
         }
-        sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
+        if (!isAtLaunch) sendMessage({type:MSG_TYPES.RAINBOW_TOGGLE, value}, true)
     }
 
     #updateCustomPreset(presetSettings, preventStorage) {
@@ -143,17 +152,18 @@ class StorageManager {
         if (!preventStorage) this.#save()
     }
 
-    #updateDebugActive(value) {
+    #updateDebugActive(value, isAtLaunch) {
         debugCheckbox.checked = this._activeStorage.debugActive = value
         debugCheckboxParent.textContent = value ? "Debug (On)" : "Debug"
         debugCheckboxParent.style.fontStyle = value ? "normal" : "italic"
-        sendMessage({type:MSG_TYPES.DEBUG_TOGGLE, value}, true)
+        if (!isAtLaunch) sendMessage({type:MSG_TYPES.DEBUG_TOGGLE, value}, true)
     }
 
     #updateAudioActive(value, uiOnly) {
         const overlayActive = this._activeStorage.overlayActive
         audioCheckbox.checked = this._activeStorage.audioActive = value
-        audioStatusText.textContent = value ? "TODO audioVolume" : "off"
+        audioStatusText.textContent = value ? "" : "off"
+        if (value) this.#updateAudioVolume()
         if (overlayActive && value && typeof uiOnly==="boolean") this.#updateAudioStatus(true)
         if (overlayActive && !uiOnly) sendMessage({type:value ? MSG_TYPES.AUDIO_PLAY : MSG_TYPES.AUDIO_STOP, value})
     }
@@ -161,6 +171,18 @@ class StorageManager {
     #updateAudioStatus(isRequest) {
         if (isRequest) this.#updateStatus("Waiting for audio...")
         else this.#updateStatus("")
+    }
+
+    #updateAudioVolume(increment=0, uiOnly) {
+        let volume = this._activeStorage.audioVolume + increment
+        this._activeStorage.audioVolume = volume = (volume<0 ? 0 : volume>100 ? 100 : volume)
+        if (this._activeStorage.audioActive) {
+            audioStatusText.textContent = volume+"%"
+            if (!uiOnly) {
+                this._audioUpdateRegulator(volume)
+                this.#save()
+            }
+        }
     }
 
     #updateSettings(rate, amount, width, height, fallTime, color, easing, limit) {
@@ -184,7 +206,7 @@ class StorageManager {
 
     resetStorage() {
         StorageManager.STORAGE.clear()
-        StorageManager.STORAGE.set(DEFAULT_STORAGE)
+        StorageManager.STORAGE.set(DEFAULT_STORAGE, ()=>location.reload())
     }
 
     isDefined(res) {
@@ -213,5 +235,6 @@ class StorageManager {
     get updateDebugActive() {return this.#updateDebugActive.bind(this)}
     get updateAudioActive() {return this.#updateAudioActive.bind(this)}
     get updateAudioStatus() {return this.#updateAudioStatus.bind(this)}
+    get updateAudioVolume() {return this.#updateAudioVolume.bind(this)}
 
 }

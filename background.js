@@ -13,6 +13,7 @@ MSG_TYPES = {
     AUDIO_STOP: _mt_i++,
     AUDIO_TOGGLE: _mt_i++,
     AUDIO_ENABLED: _mt_i++,
+    AUDIO_VOLUME_UPDATE: _mt_i++,
 }
 
 chrome.commands.onCommand.addListener(command=>{
@@ -25,13 +26,13 @@ chrome.commands.onCommand.addListener(command=>{
     else if (command === "toggle_audio") STORAGE.get(res=>{
         const isActive = !res.audioActive
         sendMessage({type:MSG_TYPES.AUDIO_TOGGLE, value:isActive})
-        toggleAudio(isActive, res.overlayActive)
+        toggleAudio(isActive, res.overlayActive, res.audioVolume)
         STORAGE.set({audioActive:isActive})
     })
 })
 
 chrome.runtime.onMessage.addListener(({type, value})=>{
-    if (type === MSG_TYPES.AUDIO_PLAY || type === MSG_TYPES.AUDIO_STOP) STORAGE.get(res=>toggleAudio(value, res.overlayActive))
+    if (type === MSG_TYPES.AUDIO_PLAY || type === MSG_TYPES.AUDIO_STOP) STORAGE.get(res=>toggleAudio(value, res.overlayActive, res.audioVolume))
 })
 
 function sendMessage(obj, contentTabId) {
@@ -46,13 +47,13 @@ function sendMessage(obj, contentTabId) {
     else chrome.runtime.sendMessage(obj)
 }
 
-function toggleAudio(audioActive, overlayActive) {
+function toggleAudio(audioActive, overlayActive, volume) {
     const audioFile = chrome.runtime.getURL("assets/audio/rain1.mp3")
 
     if (audioActive && overlayActive) chrome.runtime.getContexts({contextTypes:["OFFSCREEN_DOCUMENT"]}).then(docs=>{
-            if (docs.length) sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile})
+            if (docs.length) sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile, volume})
             else chrome.offscreen.createDocument({url:"overlay/offscreen.html", reasons:["AUDIO_PLAYBACK"], justification:"Play rain sounds if the option is enabled"}).then(()=>
-                sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile})
+                sendMessage({type:MSG_TYPES.AUDIO_PLAY, value:audioFile, volume})
             )
         })
     else if (!audioActive) sendMessage({type:MSG_TYPES.AUDIO_STOP})
