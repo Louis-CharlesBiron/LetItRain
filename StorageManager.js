@@ -3,7 +3,7 @@ class StorageManager {
     static STORAGE = STORAGE
     static STORAGE_REGULATOR_DELAY = 500
     static SETTINGS_UPDATE_REGULATOR_DELAY = 18
-    static AUDIO_UPDATE_REGULATOR_DELAY = 50
+    static AUDIO_UPDATE_REGULATOR_DELAY = 30
     static AUDIO_VOLUME_EXTRA_STEPS = [5, 10]
 
     constructor() {
@@ -19,7 +19,8 @@ class StorageManager {
                     } = res
                     this._storageRegulator = getRegulator(this.set, StorageManager.STORAGE_REGULATOR_DELAY)
                     this._settingsUpdateRegulator = getRegulator(value=>sendMessage({type:MSG_TYPES.OVERLAY_UPDATE_SETTINGS, value}, true), StorageManager.SETTINGS_UPDATE_REGULATOR_DELAY)
-                    this._audioUpdateRegulator = getRegulator(value=>sendMessage({type:MSG_TYPES.AUDIO_VOLUME_UPDATE, value}), StorageManager.AUDIO_UPDATE_REGULATOR_DELAY)
+                    this._audioVolumeUpdateRegulator = getRegulator(volume=>sendMessage({type:MSG_TYPES.AUDIO_VOLUME_UPDATE, volume}), StorageManager.AUDIO_UPDATE_REGULATOR_DELAY)
+                    this._audioFileUpdateRegulator = getRegulator(value=>sendMessage({type:MSG_TYPES.AUDIO_FILE_UPDATE, value}), StorageManager.AUDIO_UPDATE_REGULATOR_DELAY)
                     this._rainbowInterval = null
 
                     this.#updateOverlayActive(overlayActive, true, true)
@@ -56,11 +57,13 @@ class StorageManager {
 
     #updateRate(value, preventStorage) {
         this._activeStorage.rate = rateInput.value = rateRange.value = value
+        if (this._activeStorage.audioActive) this._audioFileUpdateRegulator({rate:value, amount:this._activeStorage.amount})
         if (!preventStorage) this.#updateAttribute()
     }
     
     #updateAmount(value, preventStorage) {
         this._activeStorage.amount = amountInput.value = amountRange.value = value
+        if (this._activeStorage.audioActive) this._audioFileUpdateRegulator({rate:this._activeStorage.rate, amount:value})
         if (!preventStorage) this.#updateAttribute()
     }
     
@@ -179,7 +182,7 @@ class StorageManager {
         if (this._activeStorage.audioActive) {
             audioStatusText.textContent = volume+"%"
             if (!uiOnly) {
-                this._audioUpdateRegulator(volume)
+                this._audioVolumeUpdateRegulator(volume)
                 this.#save()
             }
         }

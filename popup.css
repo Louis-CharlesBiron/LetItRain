@@ -38,7 +38,7 @@ html, body {
 }
 
 #version {
-    color: rgba(var(--textColor) / .5);
+    color: rgba(var(--textColor) / .35);
     letter-spacing: 0.5px;
     font-size: 12px !important;
 }
@@ -473,3 +473,19 @@ select {
 .hidden {
     display: none;
 }
+
+@keyframes titleAnim {
+    0% {
+        transform: translateX(-1px) rotateZ(-2deg);
+    }
+    100% {
+        transform: translateX(1px) rotateZ(2deg);
+    }
+}
+
+.left {cursor: help;}
+.left:hover * {transform: translateX(-1px) rotateZ(-2deg);}
+.left:hover .anim1_1 {animation: titleAnim 1s ease-in-out infinite alternate;}
+.left:hover .anim1_2 {margin-left: 1px;animation: titleAnim 1s ease-in-out 0.3s infinite alternate;}
+.left:hover .anim1_3 {animation: titleAnim 1s ease-in-out 0.6s infinite alternate;}
+.left:hover #version {animation: titleAnim 1s ease-in-out 0.9s infinite alternate;}

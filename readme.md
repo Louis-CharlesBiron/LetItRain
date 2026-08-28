@@ -1,5 +1,12 @@
-WIP
+# Let It Rain
 
-10*50 | 45-60fps / 1400-2300
+### Let It Rain is a simple extension allowing customizable rain to appear on top of  browsed pages.
 
+#### Pretty much it :)
 
+## Webstore download link: TODO
+
+### Credits
+
+- Core idea by Noémie Laplante
+- Made by Louis-Charles Biron !

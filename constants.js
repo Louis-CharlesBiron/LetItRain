@@ -41,6 +41,7 @@ MSG_TYPES = {
     AUDIO_TOGGLE: _mt_i++,
     AUDIO_ENABLED: _mt_i++,
     AUDIO_VOLUME_UPDATE: _mt_i++,
+    AUDIO_FILE_UPDATE: _mt_i++,
 },
 STORAGE = chrome.storage.sync,
 SAFE_LIMIT_STATUS_TEXT = "Rain turned off due to fps being below limit",
