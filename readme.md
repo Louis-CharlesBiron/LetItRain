@@ -1,6 +1,6 @@
 # Let It Rain
 
-### Let It Rain is a simple extension allowing customizable rain to appear on top of  browsed pages.
+### Let It Rain is a simple browser extension allowing customizable rain to appear on top of  browsed pages.
 
 #### Pretty much it :)
 
