@@ -43,3 +43,10 @@ function stopAudio() {
         audio = null
     }
 }
+
+
+//manifest.js
+    // "toggle_audio": {
+    //   "description": "Toggles the rain audio on/off",
+    //   "shortcut": "Alt+T"
+    // }

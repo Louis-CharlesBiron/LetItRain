@@ -70,7 +70,7 @@ limitRange.oninput=e=>storageManager.updateLimit(+e.target.value)
 keepCheckbox(overlayCheckbox, null, "overlayActive", DEFAULT_STORAGE.overlayActive, (checked, isAtLaunch)=>storageManager.updateOverlayActive(checked, false, isAtLaunch))
 keepCheckbox(rainbowCheckbox, null, "rainbowActive", DEFAULT_STORAGE.rainbowActive, (checked, isAtLaunch)=>storageManager.updateRainbowActive(checked, isAtLaunch))
 keepCheckbox(debugCheckbox, null, "debugActive", DEFAULT_STORAGE.debugActive, (checked, isAtLaunch)=>storageManager.updateDebugActive(checked, isAtLaunch))
-keepCheckbox(audioCheckbox, null, "audioActive", DEFAULT_STORAGE.audioActive, (checked, isAtLaunch)=>storageManager.updateAudioActive(checked, isAtLaunch))
+// keepCheckbox(audioCheckbox, null, "audioActive", DEFAULT_STORAGE.audioActive, (checked, isAtLaunch)=>storageManager.updateAudioActive(checked, isAtLaunch))
 
 setRegularNumberInput(fpsSafeLimitInput, storageManager.updateFpsSafeLimit)
 addWheelIncrement(fpsSafeLimitInput, [1, 5, 10], storageManager.updateFpsSafeLimit)
@@ -79,14 +79,14 @@ fillSelectOptions(easingSelect, EASINGS)
 addWheelIncrement(easingSelect, null, storageManager.updateEasing)
 easingSelect.oninput=e=>storageManager.updateEasing(e.target.value)
 
-audioVolumeInput.onwheel=e=>{
-    const dir = e.deltaY > 0 ? -1 : 1, steps = StorageManager.AUDIO_VOLUME_EXTRA_STEPS 
-    let increment = dir
-    if (e.ctrlKey) increment *= steps[0]
-    else if (e.shiftKey) increment *= steps[1]
+// audioVolumeInput.onwheel=e=>{
+//     const dir = e.deltaY > 0 ? -1 : 1, steps = StorageManager.AUDIO_VOLUME_EXTRA_STEPS 
+//     let increment = dir
+//     if (e.ctrlKey) increment *= steps[0]
+//     else if (e.shiftKey) increment *= steps[1]
 
-    if (storageManager.activeStorage.audioActive) storageManager.updateAudioVolume(increment)
-}
+//     if (storageManager.activeStorage.audioActive) storageManager.updateAudioVolume(increment)
+// }
 
 // Presets
 presetLight.onclick=()=>storageManager.updateSettings(45, 1, null, null, 1050, null, DEFAULT_SETTINGS.easing)

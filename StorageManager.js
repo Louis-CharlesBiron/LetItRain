@@ -27,9 +27,9 @@ class StorageManager {
                     this.#updateFpsSafeLimit(fpsSafeLimit, true)
                     this.#updateStatus(statusText)
                     this.#updateCustomPreset(customPreset, true)
-                    this.#updateAudioActive(audioActive, true)
-                    this._activeStorage.audioVolume = audioVolume
-                    this.#updateAudioVolume(0, true)
+                    // this.#updateAudioActive(audioActive, true)
+                    // this._activeStorage.audioVolume = audioVolume
+                    // this.#updateAudioVolume(0, true)
 
                     this.#updateRate(rate, true)
                     this.#updateAmount(amount, true)

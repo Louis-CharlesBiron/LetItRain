@@ -17,6 +17,7 @@ function random(min, max, decimals=0) {
 class RainManager {
     static INSTANCE = null
     static #RAINBOW_ACTIVE = false
+    static #COLOR_CACHE = null
     static #FPS_SAFE_LIMIT = 22
     static #DEBUG_ACTIVE = false
     static #DEBUG_DISPLAY_ELEMENT = null
@@ -227,6 +228,8 @@ canvas[_cvsde=true] {
 
     updateRainbowActive(rainbowActive) {
         RainManager.#RAINBOW_ACTIVE = rainbowActive
+        if (rainbowActive) RainManager.#COLOR_CACHE = [...RainManager.#SETTINGS.color]
+        else if (RainManager.#COLOR_CACHE) RainManager.#SETTINGS.color = [...RainManager.#COLOR_CACHE]
         this._rainbowColorCache = rainbowActive ? new Color(RainManager.#SETTINGS.color) : null
     }
 
